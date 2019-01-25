@@ -14,6 +14,13 @@ class Pawn:
   def GetYPosition(self):
     return self.y_position
 
+  def Relocate(self, x, y):
+    self.x_position = x
+    self.y_position = y
+
+  def TakeImmediateDamage(self, damage):
+    self.health = self.health - damage
+
   def TakeHit(self, ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction, damage):
     #if the specified ray intersects this object's position)
     #take damage
@@ -35,7 +42,7 @@ class Pawn:
     cross = dxc * dyl - dyc * dxl
 
     if cross == 0:
-      self.health = self.health - damage
+      TakeImmediateDamage(damage)
 
   def Attack(self, pawns):
     #hit scan fire.
