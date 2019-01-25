@@ -1,3 +1,5 @@
+from pawn import Pawn
+
 class Enemy(Pawn):
   def __init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, resource):
     Pawn.__init__(health, x_position, y_position, x_orientation, y_orientation, weapon)
