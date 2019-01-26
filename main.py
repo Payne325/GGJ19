@@ -35,7 +35,8 @@ if __name__ == "__main__":
     for enemy in enemies:
       break
 
-    engine.display_window()
+    engine.draw_world()
+    engine.update_window()
 
 
   #End
