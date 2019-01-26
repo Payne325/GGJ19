@@ -40,13 +40,21 @@ struct Player {
 impl Player {
     pub fn new() -> Self {
         Self {
-            pos: Vec2::zero(),
+            pos: Vec2::new(4.0, 4.0),
             ori: 0.0,
         }
     }
 
     pub fn move_by(&mut self, dir: Vec2<f32>) {
+        // forward/back
         self.pos += Vec2::new(self.ori.cos(), -self.ori.sin()) * dir.x;
+
+        /*
+        self.pos_x += cos(ori) * forward_speed
+        self.pos_y += -sin(ori) * forward_speed
+        */
+
+        // left/right
         let rori = self.ori + std::f32::consts::PI / 4.0;
         self.pos += Vec2::new(rori.cos(), -rori.sin()) * dir.y;
     }
@@ -120,37 +128,52 @@ impl World {
 
 const WIN_SZ: Vec2<usize> = Vec2 { x: 800, y: 600 };
 
-fn main() {
-    let mut win = Window::new(
-        "GGJ19",
-        WIN_SZ.x,
-        WIN_SZ.y,
-        WindowOptions::default(),
-    ).unwrap();
+struct Engine {
+    win: Option<Window>,
+    world: Option<World>,
+    color: Option<Buffer2d<u32>>,
+    keys: Option<Vec<i32>>,
+    //last_mouse_pos: (u32, u32),
+}
 
-    let mut color = Buffer2d::new(WIN_SZ, 0xFFFFFFFF);
-
-    let mut world = World::new();
-
-    let mut last_mouse_pos = win.get_mouse_pos(MouseMode::Pass).unwrap();
-
-    while win.is_open() {
-        let mouse_pos = win.get_mouse_pos(MouseMode::Pass).unwrap();
-        world.player.ori += (mouse_pos.0 - last_mouse_pos.0) * 0.02;
-        last_mouse_pos = mouse_pos;
-
-        // Input
-        for key in win.get_keys().unwrap_or(vec![]) {
-            match key {
-                Key::W => world.player.move_by(Vec2::new( 0.05,  0.0)),
-                Key::A => world.player.move_by(Vec2::new( 0.0, -0.05)),
-                Key::D => world.player.move_by(Vec2::new( 0.0,  0.05)),
-                Key::S => world.player.move_by(Vec2::new(-0.05,  0.0)),
-                Key::Left => world.player.ori -= 0.04,
-                Key::Right => world.player.ori += 0.04,
-                _ => {},
-            }
+impl Engine {
+    const fn new() -> Self {
+        Self {
+            win: None,
+            world: None,
+            color: None,
+            keys: None,
+            //last_mouse_pos: (0, 0),
         }
+    }
+
+    fn init(&mut self) {
+        self.win = Some(Window::new(
+            "GGJ19",
+            WIN_SZ.x,
+            WIN_SZ.y,
+            WindowOptions::default(),
+        ).unwrap());
+
+        self.world = Some(World::new());
+
+        //self.last_mouse_pos = self.win.unwrap().get_mouse_pos(MouseMode::Pass).unwrap();
+
+        self.color = Some(Buffer2d::new(WIN_SZ, 0xFFFFFFFF));
+
+        self.keys = Some(vec![]);
+    }
+
+    fn display(&mut self) {
+        /*
+        let mouse_pos = self.win.unwrap().get_mouse_pos(MouseMode::Pass).unwrap();
+        self.world.unwrap().player.ori += (mouse_pos.0 - self.last_mouse_pos.0) * 0.02;
+        self.last_mouse_pos = mouse_pos;
+        */
+
+        let mut color = self.color.as_mut().unwrap();
+        let mut world = self.world.as_mut().unwrap();
+        let mut win = self.win.as_mut().unwrap();
 
         // Render
         color.clear(SKY_BLUE);
@@ -189,5 +212,57 @@ fn main() {
         }
 
         win.update_with_buffer(color.as_ref()).unwrap();
+
+        let mut keys = vec![];
+        for key in win.get_keys().unwrap_or(vec![]) {
+            match key {
+                Key::W => keys.push(0),
+                Key::A => keys.push(1),
+                Key::S => keys.push(2),
+                Key::D => keys.push(3),
+                Key::Left => keys.push(4),
+                Key::Right => keys.push(5),
+                Key::Space => keys.push(6),
+                _ => {},
+            }
+        }
+        self.keys = Some(keys);
     }
+}
+
+unsafe impl Sync for Engine {}
+
+use spin::Mutex;
+static mut ENGINE: Engine = Engine::new();
+
+#[no_mangle]
+pub extern "C" fn init_engine() {
+    let mut engine = unsafe { &mut ENGINE };
+    *engine = Engine::new();
+    engine.init();
+}
+
+#[no_mangle]
+pub extern "C" fn window_is_open() -> i32 {
+    let engine = unsafe { &mut ENGINE };
+    if engine.win.as_mut().unwrap().is_open() { 1 } else { 0 }
+}
+
+#[no_mangle]
+pub extern "C" fn display_window() {
+    let mut engine = unsafe { &mut ENGINE };
+    engine.display();
+}
+
+#[no_mangle]
+pub extern "C" fn get_key(code: i32) -> i32 {
+    let mut engine = unsafe { &mut ENGINE };
+    if engine.keys.as_mut().unwrap().contains(&code) { 1 } else { 0 }
+}
+
+#[no_mangle]
+pub extern "C" fn put_camera(x: f32, y: f32, ori: f32) {
+    let mut engine = unsafe { &mut ENGINE };
+    engine.world.as_mut().unwrap().player.pos = Vec2::new(x, y);
+    engine.world.as_mut().unwrap().player.ori = ori;
 }
