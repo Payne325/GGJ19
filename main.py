@@ -25,9 +25,12 @@ if __name__ == "__main__":
   engine = cdll.LoadLibrary('./target/release/libggj19.so')
   engine.init_engine()
 
+  dt = 0.0
   while engine.window_is_open():
     #Moves and rotates player as necessary
     player_one.HandleKeys(engine, enemies)
+    player_one.Tick(dt)
+
     #updates the camera location and orientation
     engine.put_camera(c_float(player_one.GetXPosition()), c_float(player_one.GetYPosition()), c_float(player_one.GetOrientationAngle()))
 
@@ -35,7 +38,9 @@ if __name__ == "__main__":
     for enemy in enemies:
       break
 
-    engine.display_window()
+    engine.draw_world()
+    player_one.Draw(1, engine)
+    dt = engine.update_window()
 
 
   #End
