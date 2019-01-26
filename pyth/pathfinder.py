@@ -2,8 +2,8 @@ import sys
 from pyth.pawn import Pawn
 
 class Pathfinder:
-  def __init__(self, world, sight):
-    self.world = world
+  def __init__(self, engine, sight):
+    self.engine = engine
     self.sight = sight
 
   def GeneratePath(self, start_x, start_y, target_x, target_y):
@@ -13,13 +13,13 @@ class Pathfinder:
     min_x = start_x - halfSight
     min_y = start_y - halfSight
 
-    startNode = Node(start_x, start_y, 0, False, null)
+    startNode = Node(start_x, start_y, 0, False, None)
     openList = [startNode]
     closedList = []
 
     while(len(openList) != 0):
       lowestCost = sys.maxint
-      examinedNode = Node(-1,-1,-1,False)
+      examinedNode = Node(-1,-1,-1, False, None)
 
       for node in openList:
         if node.GetCost() < lowestCost:
@@ -56,8 +56,10 @@ class Pathfinder:
             if j < min_y or j > max_y:
               continue;
 
-            worldBlock = self.world.GetBlock(i, j)
-            adjacentNode = Node(i, j, worldBlock.GetCost(), worldBlock.GetIsObsticle(), examinedNode)
+            isObsticle = self.engine.get_cell_kind(i, j)
+            cost = sys.maxint if isObsticle else 0
+
+            adjacentNode = Node(i, j, cost, isObsticle == 0, examinedNode)
 
             for item in openList:
               if item.GetPosition() == adjacentNode.GetPosition():
