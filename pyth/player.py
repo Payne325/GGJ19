@@ -1,5 +1,6 @@
 from pyth.pawn import Pawn
 from pyth.drawable import Drawable
+from ctypes import cdll, c_float
 import math
 
 class Player(Pawn, Drawable):
@@ -63,4 +64,4 @@ class Player(Pawn, Drawable):
 
   def Draw(self, z_dist, engine):
     pass
-    #engine.draw_sprite(self.x_position, self.y_position, 0, self.weapon.GetImg())    
+    #engine.draw_sprite(self.x_position, self.y_position, 0, self.weapon.GetImg())

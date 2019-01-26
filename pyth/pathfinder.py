@@ -35,7 +35,7 @@ class Pathfinder:
         firstNode = path[pathSize-1]
         secondNode = path[pathSize-2]
 
-        x = secondNode.GetPosition()[0] -firstNode.GetPosition()[0] 
+        x = secondNode.GetPosition()[0] -firstNode.GetPosition()[0]
         y = secondNode.GetPosition()[1] -firstNode.GetPosition()[1]
 
         return [x, y]

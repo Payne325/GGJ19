@@ -2,6 +2,7 @@ from pyth.player import Player
 from pyth.enemy import Enemy
 from pyth.weapon import *
 from ctypes import cdll, c_float
+import math
 
 if __name__ == "__main__":
 
@@ -24,19 +25,19 @@ if __name__ == "__main__":
   #populate enemies
   enemy_one = Enemy(
                 health=100,
-                x_position=20,
-                y_position=20,
+                x_position=11,
+                y_position=11,
                 x_orientation=-1,
-                y_orientation=-1, 
-                weapon=Fists(), 
-                speed=0.1, 
+                y_orientation=-1,
+                weapon=Fists(),
+                speed=0.1,
                 engine=engine)
-  
+
   enemies = [enemy_one]
 
   dt = 0.0
   while engine.window_is_open():
-  
+
     #Moves and rotates player as necessary
     player_one.HandleKeys(engine, enemies)
     player_one.Tick(dt)
@@ -50,16 +51,16 @@ if __name__ == "__main__":
 
     engine.draw_world()
     player_one.Draw(1, engine)
-    
+
     for enemy in enemies:
       playerPos = [player_one.GetXPosition(), player_one.GetYPosition()]
       enemyPos = [enemy.GetXPosition(), enemy.GetYPosition()]
-      
+
       zdist = math.sqrt(
                 ((playerPos[0] - enemyPos[0]) * (playerPos[0] - enemyPos[0])) +
                 ((playerPos[1] - enemyPos[1]) * (playerPos[1] - enemyPos[1])))
 
-      enemy.Draw(zdist, engine)  
+      enemy.Draw(zdist, engine)
 
     dt = engine.update_window()
   #End

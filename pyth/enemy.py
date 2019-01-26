@@ -3,6 +3,7 @@ from pyth.state_machine import State_Machine
 from pyth.pathfinder import Pathfinder
 from pyth.drawable import Drawable
 from pyth.globals import *
+from ctypes import cdll, c_float
 import math
 
 class Enemy(Pawn, Drawable):
@@ -22,15 +23,16 @@ class Enemy(Pawn, Drawable):
     if(self.prev_x != self.x_position or self.prev_y != self.y_position):
       target_x = targetPawn.GetXPosition()
       target_y = targetPawn.GetYPosition()
+      return
 
       new_velocity = self.pathfinder.GetNewVelocity(self.x_position, self.y_position, target_x, target_y)
       self.x_velocity = new_velocity[0]
       self.y_velocity = new_velocity[1]
-    
+
       #normalise velocity and set x & y orientation
       magnitude = math.sqrt((self.x_velocity*self.x_velocity) + (self.y_velocity*self.y_velocity))
       self.x_orientation = self.x_velocity/magnitude
       self.y_orientation = self.y_velocity/magnitude
 
   def Draw(self, z_dist, engine):
-    engine.draw_sprite(self.x_position, self.y_position, z_dist, self.img) 
+    engine.draw_sprite(c_float(self.x_position), c_float(self.y_position), c_float(z_dist), self.img)
