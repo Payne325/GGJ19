@@ -9,6 +9,14 @@ class Pawn:
     self.y_orientation = y_orientation
     self.weapon = weapon
     self.speed = speed
+    self.x_velocity = 0.0
+    self.y_velocity = 0.0
+
+  def Tick(self, dt):
+    self.x_position += self.x_velocity
+    self.y_position += self.y_velocity
+    self.x_velocity *= 0.5
+    self.y_velocity *= 0.5
 
   def GetXPosition(self):
     return self.x_position
@@ -57,6 +65,6 @@ class Pawn:
     ray_y_point = self.y_position
 
     for pawn in pawns:
-      hit = enemy.Intersects(ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction)
+      hit = pawn.Intersects(ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction)
       if hit == True:
-        enemy.TakeImmediateDamage(self.weapon.GetDamage())
+        pawn.TakeImmediateDamage(self.weapon.GetDamage())

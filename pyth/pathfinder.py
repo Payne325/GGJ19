@@ -2,28 +2,21 @@ import sys
 from pyth.pawn import Pawn
 
 class Pathfinder:
-  def __init__(self, engine, sight):
+  def __init__(self, engine):
     self.engine = engine
-    self.sight = sight
 
-  def GeneratePath(self, start_x, start_y, target_x, target_y):
-    halfSight = sight/2
-    max_x = start_x + halfSight
-    max_y = start_y + halfSight
-    min_x = start_x - halfSight
-    min_y = start_y - halfSight
-
+  def GetNewVelocity(self, start_x, start_y, target_x, target_y):
     startNode = Node(start_x, start_y, 0, False, None)
     openList = [startNode]
     closedList = []
 
     while(len(openList) != 0):
-      lowestCost = sys.maxint
+      lowestCost = sys.maxsize
       examinedNode = Node(-1,-1,-1, False, None)
 
       for node in openList:
         if node.GetCost() < lowestCost:
-          lowestCost = Node.GetCost()
+          lowestCost = node.GetCost()
           examinedNode = node
 
       #if that node is our target then path complete
@@ -38,26 +31,27 @@ class Pathfinder:
           path.append(pathNode.GetPrevNode())
           pathNode = pathNode.GetPrevNode()
 
-        return path
+        pathSize = len(path)
+        firstNode = path[pathSize-1]
+        secondNode = path[pathSize-2]
 
+        x = secondNode.GetPosition()[0] -firstNode.GetPosition()[0] 
+        y = secondNode.GetPosition()[1] -firstNode.GetPosition()[1]
+
+        return [x, y]
       else:
         closedList.append(examinedNode)
         adjacentNodes = []
 
-        x = examinedNode.GetXPosition()
-        y = examinedNode.GetYPosition()
+        x = examinedNode.GetPosition()[0]
+        y = examinedNode.GetPosition()[1]
 
         for i in range(x-1, x+1):
           found = False
-          if i < min_x or i > max_x:
-            continue;
 
           for j in range(y-1, y+1):
-            if j < min_y or j > max_y:
-              continue;
-
             isObsticle = self.engine.get_cell_kind(i, j)
-            cost = sys.maxint if isObsticle else 0
+            cost = sys.maxsize if isObsticle else 0
 
             adjacentNode = Node(i, j, cost, isObsticle == 0, examinedNode)
 

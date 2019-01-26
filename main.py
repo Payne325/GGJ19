@@ -5,6 +5,10 @@ from ctypes import cdll, c_float
 
 if __name__ == "__main__":
 
+  #Initialise Renderer
+  engine = cdll.LoadLibrary('./target/release/libggj19.so')
+  engine.init_engine()
+
   #Initialise Game Entities
 
   player_one = Player(
@@ -15,17 +19,24 @@ if __name__ == "__main__":
                 y_orientation=0.0,
                 weapon=Fists(),
                 resource=50,
-				speed=0.1)
+				        speed=0.1)
 
   #populate enemies
-  enemies = []
-
-  #Initialise Renderer
-  engine = cdll.LoadLibrary('./target/release/libggj19.so')
-  engine.init_engine()
+  enemy_one = Enemy(
+                health=100,
+                x_position=20,
+                y_position=20,
+                x_orientation=-1,
+                y_orientation=-1, 
+                weapon=Fists(), 
+                speed=0.1, 
+                engine=engine)
+  
+  enemies = [enemy_one]
 
   dt = 0.0
   while engine.window_is_open():
+  
     #Moves and rotates player as necessary
     player_one.HandleKeys(engine, enemies)
     player_one.Tick(dt)
@@ -35,9 +46,20 @@ if __name__ == "__main__":
 
     #Perform enemy update
     for enemy in enemies:
-      break
+      enemy.Update(player_one)
 
     engine.draw_world()
     player_one.Draw(1, engine)
+    
+    for enemy in enemies:
+      playerPos = [player_one.GetXPosition(), player_one.GetYPosition()]
+      enemyPos = [enemy.GetXPosition(), enemy.GetYPosition()]
+      
+      zdist = math.sqrt(
+                ((playerPos[0] - enemyPos[0]) * (playerPos[0] - enemyPos[0])) +
+                ((playerPos[1] - enemyPos[1]) * (playerPos[1] - enemyPos[1])))
+
+      enemy.Draw(zdist, engine)  
+
     dt = engine.update_window()
   #End
