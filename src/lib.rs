@@ -1,7 +1,10 @@
 mod buffer;
 mod clock;
 
-use std::thread::sleep;
+use std::{
+    thread::sleep,
+
+};
 use vek::*;
 use minifb::{
     Window,
@@ -13,6 +16,10 @@ use image::{
     self,
     RgbaImage,
     DynamicImage,
+};
+use rodio::{
+    self,
+    Source,
 };
 use self::buffer::Buffer2d;
 use self::clock::Clock;
@@ -89,6 +96,12 @@ impl World {
             cells: [[Cell::new(); WORLD_SZ.y]; WORLD_SZ.x],
             player: Player::new(),
         };
+
+        world.cells[8][8].height = 1.5;
+        world.cells[8][8].kind = 4;
+
+        world.cells[5][12].height = 0.5;
+        world.cells[5][12].kind = 2;
 
         for i in 0..20 {
             world.cells[0][i].height = 0.7 + (i % 4) as f32 * 0.25;
@@ -167,6 +180,10 @@ impl Textures {
     }
 }
 
+struct Sounds {
+    sounds: Vec<String>,
+}
+
 const WIN_SZ: Vec2<usize> = Vec2 { x: 800, y: 600 };
 
 struct Engine {
@@ -174,9 +191,19 @@ struct Engine {
     win: Option<Window>,
     world: Option<World>,
     color: Option<Buffer2d<u32>>,
+    depth: Option<Buffer2d<f32>>,
     keys: Option<Vec<i32>>,
     tex: Option<Textures>,
+    sound_dev: Option<rodio::Device>,
+    sounds: Option<Sounds>,
     //last_mouse_pos: (u32, u32),
+}
+
+const FOV: f32 = 0.0011;
+
+fn angle_diff(a: f32, b: f32) -> f32 {
+    let pi = std::f32::consts::PI;
+    ((((a - b) % (pi * 2.0)) + (pi * 3.0)) % (pi * 2.0)) - (pi * 1.0)
 }
 
 impl Engine {
@@ -186,8 +213,11 @@ impl Engine {
             win: None,
             world: None,
             color: None,
+            depth: None,
             keys: None,
             tex: None,
+            sound_dev: None,
+            sounds: None,
             //last_mouse_pos: (0, 0),
         }
     }
@@ -207,6 +237,7 @@ impl Engine {
         //self.last_mouse_pos = self.win.unwrap().get_mouse_pos(MouseMode::Pass).unwrap();
 
         self.color = Some(Buffer2d::new(WIN_SZ, 0xFFFFFFFF));
+        self.depth = Some(Buffer2d::new(WIN_SZ, 0.0));
 
         self.keys = Some(vec![]);
 
@@ -216,6 +247,15 @@ impl Engine {
             wall: image::open("assets/wall.jpg").unwrap().to_rgba(),
             sprites: vec![
                 image::open("assets/zombie.png").unwrap().to_rgba(),
+                image::open("assets/mine.png").unwrap().to_rgba(),
+            ],
+        });
+
+        self.sound_dev = Some(rodio::default_output_device().unwrap());
+
+        self.sounds = Some(Sounds {
+            sounds: vec![
+                String::from("assets/gunshot.wav"),
             ],
         });
     }
@@ -228,23 +268,23 @@ impl Engine {
         */
 
         let mut color = self.color.as_mut().unwrap();
+        let mut depth = self.depth.as_mut().unwrap();
         let mut world = self.world.as_mut().unwrap();
         let mut win = self.win.as_mut().unwrap();
         let mut tex = self.tex.as_mut().unwrap();
 
         // Render
         color.clear(SKY_BLUE);
+        depth.clear(10000.0);
 
         for x in 0..WIN_SZ.x {
-            const FOV: f32 = 0.0011;
             let col_dir = world.player
                 .get_look_dir((x as f32 - WIN_SZ.x as f32 / 2.0) * FOV);
 
             for y in WIN_SZ.y / 2..WIN_SZ.y {
-                let dist = 0.5 * ((y - WIN_SZ.y / 2) as f32 * 0.01).tan().abs();
-
                 let dist = (std::f32::consts::PI / 2.0 - (y as f32 - WIN_SZ.y as f32 / 2.0) * 0.002).tan();
                 color.set(Vec2::new(x, y), tex.floor_at(world.player.pos + col_dir * dist));
+                depth.set(Vec2::new(x, y), dist);
             }
 
             let mut lim_min = WIN_SZ.y;
@@ -264,8 +304,9 @@ impl Engine {
                         let yfract = (y - base as usize) as f32 / (lim - base as usize) as f32;
                         let pix = tex.wall_at(Vec2::new(tex_x, yfract), cell.kind as u32);
                         color.set(Vec2::new(x, y), pix);
+                        depth.set(Vec2::new(x, y), dist);
                     }
-                    if (lim < lim_min) {
+                    if (base.max(0.0) as usize) < lim_min {
                         lim_min = base.max(0.0) as usize;
                         height_thresh = cell.height;
                     }
@@ -273,6 +314,9 @@ impl Engine {
                 }
             }
         }
+
+        //draw_sprite(6.0, 6.0, (world.player.pos - Vec2::broadcast(6.0)).magnitude(), 0);
+        //draw_sprite(15.0, 15.0, (world.player.pos - Vec2::broadcast(15.0)).magnitude(), 1);
 
         win.update_with_buffer(color.as_ref()).unwrap();
 
@@ -285,11 +329,47 @@ impl Engine {
                 Key::D => keys.push(3),
                 Key::Left => keys.push(4),
                 Key::Right => keys.push(5),
-                Key::Space => keys.push(6),
+                Key::Space => { keys.push(6); play_sound(0); },
                 _ => {},
             }
         }
         self.keys = Some(keys);
+    }
+
+    fn draw_sprite(&mut self, pos: Vec2<f32>, dist: f32, img: i32) {
+        let mut color = self.color.as_mut().unwrap();
+        let mut depth = self.depth.as_mut().unwrap();
+        let mut world = self.world.as_mut().unwrap();
+        let mut win = self.win.as_mut().unwrap();
+        let mut tex = self.tex.as_mut().unwrap();
+
+        for x in 0..WIN_SZ.x {
+            let scrn_ori = world.player.ori + (x as f32 - WIN_SZ.x as f32 / 2.0) * FOV;
+
+            let rpos = (pos - world.player.pos).normalized();
+            let scrn_img_ori = (-rpos.y).atan2(rpos.x);
+
+            let rori = angle_diff(scrn_ori, scrn_img_ori);
+            let xx = rori * 100.0 * dist + 64.0;
+
+            if xx < 0.0 || xx > 128.0 {
+                continue;
+            }
+            for y in 0..WIN_SZ.y {
+                let rpos = Vec2::new(
+                    xx,
+                    (y as f32 - WIN_SZ.y as f32 / 2.0) * 0.15 * dist + 64.0,
+                );
+                if rpos.y > 0.0 {
+                    if *depth.get(Vec2::new(x, y)) > dist {
+                        let px = tex.sprite_at(rpos, img as usize);
+                        if px & 0xFF000000 != 0 {
+                            color.set(Vec2::new(x, y), px);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     pub fn update_window(&mut self) -> f32 {
@@ -361,4 +441,19 @@ pub extern "C" fn get_cell_height(x: i32, y: i32) -> f32 {
 pub extern "C" fn get_cell_kind(x: i32, y: i32) -> i32 {
     let mut engine = unsafe { &mut ENGINE };
     engine.world.as_mut().unwrap().get_at_mut(Vec2::new(x as usize, y as usize)).map(|cell| cell.kind).unwrap_or(0)
+}
+
+#[no_mangle]
+pub extern "C" fn play_sound(n: i32) {
+    let mut engine = unsafe { &mut ENGINE };
+    let mut sound_dev = engine.sound_dev.as_mut().unwrap();
+    let mut sounds = engine.sounds.as_mut().unwrap();
+
+    rodio::play_once(sound_dev, std::io::BufReader::new(std::fs::File::open(&sounds.sounds[n as usize]).unwrap())).unwrap().detach();
+}
+
+#[no_mangle]
+pub extern "C" fn draw_sprite(x: f32, y: f32, dist: f32, img: i32) {
+    let mut engine = unsafe { &mut ENGINE };
+    engine.draw_sprite(Vec2::new(x, y), dist, img);
 }
