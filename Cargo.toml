@@ -1,0 +1,12 @@
+[package]
+name = "ggj19"
+version = "0.1.0"
+authors = ["Joshua Barretto <joshua.s.barretto@gmail.com>"]
+edition = "2018"
+
+[profile.release]
+opt-level = 2
+
+[dependencies]
+minifb = "0.11"
+vek = "0.9"
