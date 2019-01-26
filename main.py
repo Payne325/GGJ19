@@ -3,7 +3,6 @@ from pyth.enemy import Enemy
 from pyth.weapon import *
 from ctypes import cdll, c_float
 
-
 if __name__ == "__main__":
 
   #Initialise Game Entities
@@ -41,6 +40,4 @@ if __name__ == "__main__":
     engine.draw_world()
     player_one.Draw(1, engine)
     dt = engine.update_window()
-
-
   #End

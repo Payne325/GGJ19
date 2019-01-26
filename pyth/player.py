@@ -70,10 +70,5 @@ class Player(Pawn, Drawable):
     self.y_orientation = -math.sin(ori)
 
   def Draw(self, z_dist, engine):
+    pass
     #engine.draw_sprite(self.x_position, self.y_position, 0, self.weapon.GetImg())    
-
-if __name__ == "__main__":
-  Print("Test Player Class")
-
-
-
