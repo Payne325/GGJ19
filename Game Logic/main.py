@@ -1,34 +1,39 @@
-class Trap:
-  def __init__(self, x, y, proximity_threshold):
-    self.x_pos = x
-    self.y_pos = y
-    self.proximity_threshold = proximity_threshold
-
-  def HasCollidedWith(self, x, y):
-    x_range = abs(x - self.x_pos)
-    y_range = abs(y - self.y_pos)
-    
-    if(x_range <= self.proximity_threshold):
-      return True
-
-    elif(y_range <= self.proximity_threshold):
-      return True
-    
-    else:
-      return False
+from player import Player
+from enemy import Enemy
+from ctypes import cdll
 
 
 if __name__ == "__main__":
-  print("Tests the Trap class")
+  
+  #Initialise Game Entities
 
-  mine = Trap(16, 16, 2)
+  player_one = Player(
+                health=100,
+                x_position=1, 
+                y_position=1, 
+                x_orientation=1.0, 
+                y_orientation=1.0, 
+                weapon=null, 
+                resource=50)
 
-  if(mine.HasCollidedWith(9, 9)):
-    print("At (9,9), BOOM!")
-  else:
-    print("At (9,9), No Boom Boom")
 
-  if(mine.HasCollidedWith(15, 15)):
-    print("At (15, 15), BOOM!")
-  else:
-    print("At (15,15), No Boom Boom")
+
+  #Initialise Renderer
+  lib = cdll.LoadLibrary('./libfoo.so')
+  renderer = lib.GetNewWorld()
+
+  renderer.Begin()
+
+  #while(True):
+    #Read user input 
+
+    #Move user to necessary location
+
+    #Perform enemy update
+
+    #Fire player weapon
+
+    #Blit screen
+
+
+  #End

@@ -21,12 +21,11 @@ class Pawn:
   def TakeImmediateDamage(self, damage):
     self.health = self.health - damage
 
-  def TakeHit(self, ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction, damage):
-    #if the specified ray intersects this object's position)
-    #take damage
+  def Intersects(self, ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction):
+    #determines if the specified ray intersects this object's position
 
     #If current position lies within two points defined by the ray
-    #then we have taken a hit
+    #then we are hit
     rayPointX1 = ray_x_point
     rayPointX2 = ray_x_point + (ray_x_direction * ray_length)
 
@@ -41,8 +40,7 @@ class Pawn:
 
     cross = dxc * dyl - dyc * dxl
 
-    if cross == 0:
-      TakeImmediateDamage(damage)
+    return cross == 0
 
   def Attack(self, pawns):
     #hit scan fire.
@@ -52,7 +50,8 @@ class Pawn:
     ray_y_direction = self.y_orientation
     ray_x_point = self.x_position
     ray_y_point = self.y_position
-    damage = self.weapon.GetDamage()
 
     for pawn in pawns:
-      enemy.TakeHit(ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction, damage)
+      hit = enemy.Intersects(ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction)
+      if hit == True:
+        enemy.TakeImmediateDamage(self.weapon.GetDamage())
