@@ -95,13 +95,13 @@ impl World {
             world.cells[0][i].kind = 1;
 
             world.cells[20][i].height = 0.7 + (i % 4) as f32 * 0.25;
-            world.cells[20][i].kind = 1;
+            world.cells[20][i].kind = 2;
 
             world.cells[i][0].height = 0.7 + (i % 4) as f32 * 0.25;
-            world.cells[i][0].kind = 1;
+            world.cells[i][0].kind = 3;
 
             world.cells[i][20].height = 0.7 + (i % 4) as f32 * 0.25;
-            world.cells[i][20].kind = 1;
+            world.cells[i][20].kind = 4;
         }
 
         world
@@ -134,9 +134,10 @@ impl World {
 }
 
 struct Textures {
-    tilemap: RgbaImage,
+    tiles: RgbaImage,
     floor: RgbaImage,
     wall: RgbaImage,
+    sprites: Vec<RgbaImage>,
 }
 
 fn rgba_to_u32(p: image::Rgba<u8>) -> u32 {
@@ -147,16 +148,22 @@ fn rgba_to_u32(p: image::Rgba<u8>) -> u32 {
 }
 
 impl Textures {
-    pub fn wall_at(&self, pos: Vec2<f32>) -> u32 {
-        let x = ((128.0 * pos.x) as u32) & 0x7F;
-        let y = ((128.0 * pos.y) as u32) & 0x7F;
-        rgba_to_u32(*self.wall.get_pixel(x, y))
+    pub fn wall_at(&self, pos: Vec2<f32>, kind: u32) -> u32 {
+        let x = ((16.0 * pos.x) as u32) & 0xF;
+        let y = ((16.0 * pos.y) as u32) & 0xF;
+        rgba_to_u32(*self.tiles.get_pixel(x + kind * 16, y))
     }
 
     pub fn floor_at(&self, pos: Vec2<f32>) -> u32 {
         let x = ((50.0 * pos.x) as u32) & 0xFF;
         let y = ((50.0 * pos.y) as u32) & 0xFF;
         rgba_to_u32(*self.floor.get_pixel(x, y))
+    }
+
+    pub fn sprite_at(&self, pos: Vec2<f32>, idx: usize) -> u32 {
+        let x = (pos.x as u32) & 0x7F;
+        let y = (pos.y as u32) & 0x7F;
+        rgba_to_u32(*self.sprites[idx].get_pixel(x, y))
     }
 }
 
@@ -204,13 +211,16 @@ impl Engine {
         self.keys = Some(vec![]);
 
         self.tex = Some(Textures {
-            tilemap: image::open("assets/floor.png").unwrap().to_rgba(),
+            tiles: image::open("assets/tiles.png").unwrap().to_rgba(),
             floor: image::open("assets/floor.png").unwrap().to_rgba(),
             wall: image::open("assets/wall.jpg").unwrap().to_rgba(),
+            sprites: vec![
+                image::open("assets/zombie.png").unwrap().to_rgba(),
+            ],
         });
     }
 
-    fn display(&mut self) {
+    fn draw_world(&mut self) {
         /*
         let mouse_pos = self.win.unwrap().get_mouse_pos(MouseMode::Pass).unwrap();
         self.world.unwrap().player.ori += (mouse_pos.0 - self.last_mouse_pos.0) * 0.02;
@@ -248,10 +258,11 @@ impl Engine {
                     let lim = (WIN_SZ.y / 2 + bot_height as usize);
 
                     let cpos = world.player.pos + col_dir * dist;
+                    let tex_x = cpos.sum().fract();
 
                     for y in base.max(0.0) as usize..lim.min(WIN_SZ.y).min(lim_min) {
                         let yfract = (y - base as usize) as f32 / (lim - base as usize) as f32;
-                        let pix = tex.wall_at(Vec2::new(cpos.sum().fract(), yfract));
+                        let pix = tex.wall_at(Vec2::new(tex_x, yfract), cell.kind as u32);
                         color.set(Vec2::new(x, y), pix);
                     }
                     if (lim < lim_min) {
@@ -279,8 +290,15 @@ impl Engine {
             }
         }
         self.keys = Some(keys);
+    }
+
+    pub fn update_window(&mut self) -> f32 {
+        let mut color = self.color.as_mut().unwrap();
+        let mut win = self.win.as_mut().unwrap();
+        win.update_with_buffer(color.as_ref()).unwrap();
 
         self.clock.as_mut().unwrap().tick(std::time::Duration::from_millis(1000 / 60));
+        (1000.0 / 60.0) / self.clock.as_mut().unwrap().get_last_delta().subsec_millis() as f32
     }
 }
 
@@ -302,9 +320,15 @@ pub extern "C" fn window_is_open() -> i32 {
 }
 
 #[no_mangle]
-pub extern "C" fn display_window() {
+pub extern "C" fn draw_world() {
     let mut engine = unsafe { &mut ENGINE };
-    engine.display();
+    engine.draw_world();
+}
+
+#[no_mangle]
+pub extern "C" fn update_window() -> f32 {
+    let mut engine = unsafe { &mut ENGINE };
+    engine.update_window()
 }
 
 #[no_mangle]
