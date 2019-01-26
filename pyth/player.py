@@ -1,10 +1,13 @@
 from pyth.pawn import Pawn
+from pyth.drawable import Drawable
 import math
 
-class Player(Pawn):
+class Player(Pawn, Drawable):
   def __init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, resource, speed):
     Pawn.__init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed)
+    Drawable.__init__(self)
     self.resource = resource
+    self.rotOff = 0.05
 
   def HandleKeys(self, engine, enemies):
     if engine.get_key(0):
@@ -49,16 +52,17 @@ class Player(Pawn):
     self.y_position += -math.sin(ori) * self.speed
 
   def RotateLeft(self):
-    rotOff = 0.04
-    ori = self.GetOrientationAngle() - rotOff
+    ori = self.GetOrientationAngle() - self.rotOff
     self.x_orientation = math.cos(ori)
     self.y_orientation = -math.sin(ori)
 
   def RotateRight(self):
-    rotOff = 0.04
-    ori = self.GetOrientationAngle() + rotOff
+    ori = self.GetOrientationAngle() + self.rotOff
     self.x_orientation = math.cos(ori)
     self.y_orientation = -math.sin(ori)
+
+  def Draw(self, z_dist, engine):
+    engine.draw_sprite(self.x_position, self.y_position, 0, self.weapon.GetImg())    
 
 if __name__ == "__main__":
   Print("Test Player Class")

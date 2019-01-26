@@ -1,5 +1,6 @@
 from pyth.player import Player
 from pyth.enemy import Enemy
+from pyth.weapon import *
 from ctypes import cdll, c_float
 
 
@@ -13,7 +14,7 @@ if __name__ == "__main__":
                 y_position=1,
                 x_orientation=1.0,
                 y_orientation=0.0,
-                weapon=None,
+                weapon=Fists(),
                 resource=50,
 				speed=0.1)
 

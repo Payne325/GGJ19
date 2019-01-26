@@ -1,0 +1,15 @@
+from pyth.collidable import Collidable
+from pyth.drawable import Drawable
+
+class Mine(Collidable):
+  def __init__(self, x, y, proximity_threshold):
+    Collidable.__init__(self, x, y, proximity_threshold)
+    Drawable.__init__(self)    
+    self.proximity_threshold = proximity_threshold
+    self.img = None
+
+  def Activate(self, pawn):
+    pawn.TakeImmediateDamage(self.damage)
+    
+  def Draw(self, z_dist, engine):
+    engine.draw_sprite(self.x_position, self.y_position, z_dist, self.img)

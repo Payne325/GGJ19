@@ -1,10 +1,12 @@
 from pyth.pawn import Pawn
 from pyth.state_machine import State_Machine
 from pyth.pathfinder import Pathfinder
+from pyth.drawable import Drawable
 
-class Enemy(Pawn):
+class Enemy(Pawn, Drawable):
   def __init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, sightRange, world):
     Pawn.__init__(health, x_position, y_position, x_orientation, y_orientation, weapon)
+    Drawable.__init__(self)
     self.sightRange = sightRange
     self.state_machine = State_Machine(sightRange)
     self.pathfinder = Pathfinder(world, sightRange)
@@ -25,4 +27,7 @@ class Enemy(Pawn):
 
   def Rotate(self, rotationVal):
     pass
-	#perform rotation
+	  #perform rotation
+
+  def Draw(self, z_dist, engine):
+    engine.draw_sprite(self.x_position, self.y_position, z_dist, engine) 
