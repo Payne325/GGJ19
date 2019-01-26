@@ -5,6 +5,10 @@ from ctypes import cdll, c_float
 
 if __name__ == "__main__":
 
+  #Initialise Renderer
+  engine = cdll.LoadLibrary('./target/release/libggj19.so')
+  engine.init_engine()
+
   #Initialise Game Entities
 
   player_one = Player(
@@ -15,14 +19,20 @@ if __name__ == "__main__":
                 y_orientation=0.0,
                 weapon=Fists(),
                 resource=50,
-				speed=0.1)
+				        speed=0.1)
 
   #populate enemies
-  enemies = []
-
-  #Initialise Renderer
-  engine = cdll.LoadLibrary('./target/release/libggj19.so')
-  engine.init_engine()
+  enemy_one = Enemy(
+                health=100,
+                x_position=20,
+                y_position=20,
+                x_orientation=-1,
+                y_orientation=-1, 
+                weapon=Fists(), 
+                speed=0.1, 
+                engine=engine)
+  
+  enemies = [enemy_one]
 
   dt = 0.0
   while engine.window_is_open():

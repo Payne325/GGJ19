@@ -1,3 +1,5 @@
+from pyth.globals import *
+
 class Weapon():
   def __init__(self, damage, hit_distance, img):
     self.damage = damage
@@ -15,16 +17,16 @@ class Weapon():
 
 class Fists(Weapon):
   def __init__(self):
-    Weapon.__init__(self, 1, 1, None)
+    Weapon.__init__(self, 1, 1, FISTS_SPRITE_INDEX)
 
 class CricketBat(Weapon):
   def __init__(self):
-    Weapon.__init__(self, 2, 2, None)
+    Weapon.__init__(self, 2, 2, CRICKET_BAT_SPRITE_INDEX)
 
 class KnuckleDuster(Weapon):
   def __init__(self):
-    Weapon.__init__(self, 4, 1, None)
+    Weapon.__init__(self, 4, 1, KNUCKLE_DUSTER_SPRITE_INDEX)
 
 class Sword(Weapon):
   def __init__(self):
-    Weapon.__init__(self, 5, 2, None)
+    Weapon.__init__(self, 5, 2, SWORD_SPRITE_INDEX)

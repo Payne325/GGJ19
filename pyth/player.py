@@ -8,14 +8,6 @@ class Player(Pawn, Drawable):
     Drawable.__init__(self)
     self.resource = resource
     self.rotOff = 0.06
-    self.x_velocity = 0.0
-    self.y_velocity = 0.0
-
-  def Tick(self, dt):
-    self.x_position += self.x_velocity
-    self.y_position += self.y_velocity
-    self.x_velocity *= 0.5
-    self.y_velocity *= 0.5
 
   def HandleKeys(self, engine, enemies):
     if engine.get_key(0):
