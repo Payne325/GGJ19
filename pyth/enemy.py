@@ -3,6 +3,7 @@ from pyth.state_machine import State_Machine
 from pyth.pathfinder import Pathfinder
 from pyth.drawable import Drawable
 from pyth.globals import *
+import math
 
 class Enemy(Pawn, Drawable):
   def __init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed, engine):
@@ -27,7 +28,7 @@ class Enemy(Pawn, Drawable):
       self.y_velocity = new_velocity[1]
     
       #normalise velocity and set x & y orientation
-      magnitude = sqrt((self.x_velocity*self.x_velocity) + (self.y_velocity*self.y_velocity))
+      magnitude = math.sqrt((self.x_velocity*self.x_velocity) + (self.y_velocity*self.y_velocity))
       self.x_orientation = self.x_velocity/magnitude
       self.y_orientation = self.y_velocity/magnitude
 

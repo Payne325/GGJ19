@@ -36,6 +36,7 @@ if __name__ == "__main__":
 
   dt = 0.0
   while engine.window_is_open():
+  
     #Moves and rotates player as necessary
     player_one.HandleKeys(engine, enemies)
     player_one.Tick(dt)
@@ -45,9 +46,20 @@ if __name__ == "__main__":
 
     #Perform enemy update
     for enemy in enemies:
-      break
+      enemy.Update(player_one)
 
     engine.draw_world()
     player_one.Draw(1, engine)
+    
+    for enemy in enemies:
+      playerPos = [player_one.GetXPosition(), player_one.GetYPosition()]
+      enemyPos = [enemy.GetXPosition(), enemy.GetYPosition()]
+      
+      zdist = math.sqrt(
+                ((playerPos[0] - enemyPos[0]) * (playerPos[0] - enemyPos[0])) +
+                ((playerPos[1] - enemyPos[1]) * (playerPos[1] - enemyPos[1])))
+
+      enemy.Draw(zdist, engine)  
+
     dt = engine.update_window()
   #End
