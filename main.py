@@ -14,13 +14,13 @@ if __name__ == "__main__":
 
   player_one = Player(
                 health=100,
-                x_position=1,
-                y_position=1,
+                x_position=2,
+                y_position=2,
                 x_orientation=1.0,
                 y_orientation=0.0,
                 weapon=Fists(),
                 resource=50,
-				        speed=0.1)
+				        speed=0.007)
 
   #populate enemies
   enemy_one = Enemy(
@@ -30,7 +30,7 @@ if __name__ == "__main__":
                 x_orientation=-1,
                 y_orientation=-1,
                 weapon=Fists(),
-                speed=0.1,
+                speed=0.02,
                 engine=engine)
 
   enemies = [enemy_one]
@@ -39,7 +39,7 @@ if __name__ == "__main__":
   while engine.window_is_open():
 
     #Moves and rotates player as necessary
-    player_one.HandleKeys(engine, enemies)
+    player_one.HandleKeys(dt, engine, enemies)
     player_one.Tick(dt)
 
     #updates the camera location and orientation
@@ -48,6 +48,7 @@ if __name__ == "__main__":
     #Perform enemy update
     for enemy in enemies:
       enemy.Update(player_one)
+      enemy.Tick(dt)
 
     engine.draw_world()
     player_one.Draw(1, engine)

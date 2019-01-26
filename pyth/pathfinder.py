@@ -1,4 +1,4 @@
-import sys
+import sys, random
 from pyth.pawn import Pawn
 
 class Pathfinder:
@@ -6,13 +6,18 @@ class Pathfinder:
     self.engine = engine
 
   def GetNewVelocity(self, start_x, start_y, target_x, target_y):
-    startNode = Node(start_x, start_y, 0, False, None)
+    startNode = Node(int(start_x), int(start_y), 0, False, None)
     openList = [startNode]
     closedList = []
 
+    jitterator = 0
     while(len(openList) != 0):
+      jitterator += 1
       lowestCost = sys.maxsize
       examinedNode = Node(-1,-1,-1, False, None)
+
+      #print("Open: " + str(openList))
+      #print("Closed: " + str(closedList))
 
       for node in openList:
         if node.GetCost() < lowestCost:
@@ -20,14 +25,14 @@ class Pathfinder:
           examinedNode = node
 
       #if that node is our target then path complete
-      if node.GetPosition() == [target_x, target_y]:
+      if (examinedNode.GetPosition()[0] == int(target_x) and examinedNode.GetPosition()[1] == int(target_y)) or jitterator >= 50:
         #RETURN PATH
 
-        path = [node]
+        path = [examinedNode]
         flag = True
 
-        pathNode = node
-        while(pathNode.GetPrevNode() != null):
+        pathNode = examinedNode
+        while(pathNode.GetPrevNode() != None):
           path.append(pathNode.GetPrevNode())
           pathNode = pathNode.GetPrevNode()
 
@@ -38,22 +43,23 @@ class Pathfinder:
         x = secondNode.GetPosition()[0] -firstNode.GetPosition()[0]
         y = secondNode.GetPosition()[1] -firstNode.GetPosition()[1]
 
+        if secondNode.GetPosition() == firstNode.GetPosition():
+            return (random.randint(-10, 10), random.randint(-10, 10))
+
         return [x, y]
       else:
         closedList.append(examinedNode)
-        adjacentNodes = []
 
         x = examinedNode.GetPosition()[0]
         y = examinedNode.GetPosition()[1]
 
-        for i in range(x-1, x+1):
-          found = False
+        for i in range(int(x)-1, int(x)+2):
+          for j in range(int(y)-1, int(y)+2):
+            found = False
+            isObsticle = self.engine.get_cell_kind(i, j) > 0
+            cost = sys.maxsize if isObsticle else max(abs(x - target_x), abs(y - target_y))
 
-          for j in range(y-1, y+1):
-            isObsticle = self.engine.get_cell_kind(i, j)
-            cost = sys.maxsize if isObsticle else 0
-
-            adjacentNode = Node(i, j, cost, isObsticle == 0, examinedNode)
+            adjacentNode = Node(i, j, cost, isObsticle, examinedNode)
 
             for item in openList:
               if item.GetPosition() == adjacentNode.GetPosition():
@@ -66,12 +72,15 @@ class Pathfinder:
             if adjacentNode.GetIsObsticle():
               found = True
 
-          if found == False:
-            openList.append(adjacentNode)
+            if found == False:
+              openList.append(adjacentNode)
+
+        openList.remove(examinedNode)
+    return (random.randint(-10, 10), random.randint(-10, 10))
 
 class Node:
   def __init__(self, x, y, cost, isObsticle, prevNode):
-    self.position = [x,y]
+    self.position = (x,y)
     self.cost = cost
     self.isObsticle = isObsticle
     self.prevNode = prevNode

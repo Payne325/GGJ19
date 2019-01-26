@@ -97,7 +97,7 @@ impl World {
             player: Player::new(),
         };
 
-        world.cells[8][8].height = 1.5;
+        world.cells[8][8].height = 0.3;
         world.cells[8][8].kind = 4;
 
         world.cells[5][12].height = 0.5;
@@ -229,7 +229,12 @@ impl Engine {
             "GGJ19",
             WIN_SZ.x,
             WIN_SZ.y,
-            WindowOptions::default(),
+            WindowOptions {
+                borderless: false,
+                title: true,
+                resize: false,
+                scale: minifb::Scale::X1,
+            },
         ).unwrap());
 
         self.world = Some(World::new());
@@ -318,8 +323,6 @@ impl Engine {
         //draw_sprite(6.0, 6.0, (world.player.pos - Vec2::broadcast(6.0)).magnitude(), 0);
         //draw_sprite(15.0, 15.0, (world.player.pos - Vec2::broadcast(15.0)).magnitude(), 1);
 
-        win.update_with_buffer(color.as_ref()).unwrap();
-
         let mut keys = vec![];
         for key in win.get_keys().unwrap_or(vec![]) {
             match key {
@@ -329,7 +332,7 @@ impl Engine {
                 Key::D => keys.push(3),
                 Key::Left => keys.push(4),
                 Key::Right => keys.push(5),
-                Key::Space => { keys.push(6); play_sound(0); },
+                Key::Space => keys.push(6),
                 _ => {},
             }
         }
@@ -361,7 +364,7 @@ impl Engine {
                     (y as f32 - WIN_SZ.y as f32 / 2.0) * 0.15 * dist + 64.0,
                 );
                 if rpos.y > 0.0 {
-                    if *depth.get(Vec2::new(x, y)) > dist {
+                    if dist < *depth.get(Vec2::new(x, y)) {
                         let px = tex.sprite_at(rpos, img as usize);
                         if px & 0xFF000000 != 0 {
                             color.set(Vec2::new(x, y), px);

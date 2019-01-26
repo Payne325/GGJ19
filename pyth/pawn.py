@@ -15,8 +15,8 @@ class Pawn:
   def Tick(self, dt):
     self.x_position += self.x_velocity
     self.y_position += self.y_velocity
-    self.x_velocity *= 0.5
-    self.y_velocity *= 0.5
+    self.x_velocity *= math.pow(0.95, dt)
+    self.y_velocity *= math.pow(0.95, dt)
 
   def GetXPosition(self):
     return self.x_position
@@ -46,7 +46,7 @@ class Pawn:
     rayPointY2 = ray_y_point + (ray_y_direction * ray_length)
 
     dxc = self.x_position - rayPointX1
-    dyx = self.y_position - rayPointY1
+    dyc = self.y_position - rayPointY1
 
     dxl = rayPointX2 - rayPointX1
     dyl = rayPointY2 - rayPointY1
