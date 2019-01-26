@@ -11,12 +11,12 @@ class Pathfinder:
     closedList = []
 
     while(len(openList) != 0):
-      lowestCost = sys.maxint
+      lowestCost = sys.maxsize
       examinedNode = Node(-1,-1,-1, False, None)
 
       for node in openList:
         if node.GetCost() < lowestCost:
-          lowestCost = Node.GetCost()
+          lowestCost = node.GetCost()
           examinedNode = node
 
       #if that node is our target then path complete
@@ -43,15 +43,15 @@ class Pathfinder:
         closedList.append(examinedNode)
         adjacentNodes = []
 
-        x = examinedNode.GetXPosition()
-        y = examinedNode.GetYPosition()
+        x = examinedNode.GetPosition()[0]
+        y = examinedNode.GetPosition()[1]
 
         for i in range(x-1, x+1):
           found = False
 
           for j in range(y-1, y+1):
             isObsticle = self.engine.get_cell_kind(i, j)
-            cost = sys.maxint if isObsticle else 0
+            cost = sys.maxsize if isObsticle else 0
 
             adjacentNode = Node(i, j, cost, isObsticle == 0, examinedNode)
 
