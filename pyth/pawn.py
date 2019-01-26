@@ -56,6 +56,7 @@ class Pawn:
     return cross == 0
 
   def Attack(self, pawns):
+    print("ATTACK ATTEMPT")
     #hit scan fire.
     #fires a ray of specified size when attack is called
     ray_length = self.weapon.GetHitDistance()
@@ -67,4 +68,7 @@ class Pawn:
     for pawn in pawns:
       hit = pawn.Intersects(ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction)
       if hit == True:
+        print("ATTACK SUCCESS")
         pawn.TakeImmediateDamage(self.weapon.GetDamage())
+      else:
+        print("ATTACK FAIL")

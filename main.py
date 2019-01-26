@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
   #populate enemies
   enemy_one = Enemy(
-                health=100,
+                health=1,
                 x_position=11,
                 y_position=11,
                 x_orientation=-1,
@@ -46,10 +46,17 @@ if __name__ == "__main__":
     engine.put_camera(c_float(player_one.GetXPosition()), c_float(player_one.GetYPosition()), c_float(player_one.GetOrientationAngle()))
 
     #Perform enemy update
+    deadEnemies = []
     for enemy in enemies:
       enemy.Update(player_one)
       enemy.Tick(dt)
+      if enemy.health < 1:
+        deadEnemies.append(enemy)
 
+    for e in deadEnemies:
+      enemies.remove(e)    
+
+    #draw
     engine.draw_world()
     player_one.Draw(1, engine)
 
