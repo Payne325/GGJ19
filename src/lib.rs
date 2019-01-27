@@ -296,6 +296,12 @@ impl Engine {
                 String::from("assets/home_atmos_1.wav"), //8
                 String::from("assets/Gunshot_flesh_1.wav"), //9
                 String::from("assets/Gunshot_wall_1.wav"), //10  
+                String::from("assets/Zombie1.wav"), //11  
+                String::from("assets/Zombie2.wav"), //12  
+                String::from("assets/Zombie3.wav"), //13  
+                String::from("assets/Zombie4.wav"), //14  
+                String::from("assets/Zombie_death_1.wav"), //15  
+                String::from("assets/Zombie_death_2.wav"), //16 
             ],
         });
     }

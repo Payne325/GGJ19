@@ -96,12 +96,13 @@ if __name__ == "__main__":
       enemy.Tick(engine, dt)
       if enemy.health <= 0:
           enemies.remove(enemy)
+          engine.play_sound(15)
 
     #draw
     engine.draw_world()
     player_one.Draw(1, engine)
 
-    jb.PlayMusic()
+    #jb.PlayMusic()
 
     for mine_drop in mine_drops:
         rx = player_one.GetXPosition() - mine_drop[0]

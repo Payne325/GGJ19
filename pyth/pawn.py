@@ -60,7 +60,7 @@ class Pawn:
     self.x_position = x
     self.y_position = y
 
-  def TakeImmediateDamage(self, damage):
+  def TakeImmediateDamage(self, damage, engine):
     self.health = self.health - damage
 
   def Intersects(self, ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction):
@@ -149,6 +149,4 @@ class Pawn:
     if closest != None:
         print("HIT!")
         engine.play_sound(9) # Attack sound
-        closest.TakeImmediateDamage(self.weapon.GetDamage())
-    else:
-      engine.play_sound(2)
+        closest.TakeImmediateDamage(self.weapon.GetDamage(), engine)
