@@ -19,7 +19,7 @@ class Pawn:
     for i in range(int(dt ** 0.4) + 2):
         self.x_velocity *= 0.85
         self.y_velocity *= 0.85
-    self.attack_cooldown += 1
+    self.attack_cooldown += dt / 15
 
     def would_collide(this, engine, x, y):
         dirs = [
