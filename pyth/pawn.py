@@ -16,9 +16,10 @@ class Pawn:
 
   def Tick(self, engine, dt):
     vel_len = math.sqrt(self.x_velocity ** 2.0 + self.y_velocity ** 2.0)
-    self.x_velocity *= math.pow(0.95, dt)
-    self.y_velocity *= math.pow(0.95, dt)
-    self.attack_cooldown += 1
+    for i in range(int(dt ** 0.4) + 2):
+        self.x_velocity *= 0.85
+        self.y_velocity *= 0.85
+    self.attack_cooldown += dt / 15
 
     def would_collide(this, engine, x, y):
         dirs = [
@@ -118,7 +119,7 @@ class Pawn:
     if dot_result > math.pow(0.99, 1.0 / to_other_leng) and ray_dist > to_other_leng - 0.1: # <-- Account for stuck in walls
         return (True, to_other_leng)
     else:
-        return (False, 1000.0)
+        return (False, ray_dist)
 
   def Attack(self, engine, pawns):
     if self.attack_cooldown < 15:
@@ -139,12 +140,15 @@ class Pawn:
     for pawn in pawns:
       #hit = pawn.Intersects(ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction)
       hit = self.hit_other(engine, pawn)
-      if hit[0] == True:
+      if hit[0] == True and hit[1] <= self.weapon.GetHitDistance():
         #print("HIT!")
         if hit[1] < closest_dist:
             closest = pawn
             closest_dist = hit[1]
 
     if closest != None:
-        engine.play_sound(2) # Attack sound
+        print("HIT!")
+        engine.play_sound(9) # Attack sound
         closest.TakeImmediateDamage(self.weapon.GetDamage())
+    else:
+      engine.play_sound(2)
