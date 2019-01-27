@@ -6,15 +6,15 @@ from pyth.mapgen import MapGen
 from pyth.jukebox import Jukebox
 import math, random
 
-def enemy_factory(engine, x, y):
+def enemy_factory(engine, x, y, mult):
     return Enemy(
-        health=3,
+        health=math.trunc(3*mult),
         x_position=x,
         y_position=y,
         x_orientation=-1,
         y_orientation=-1,
         weapon=Fists(),
-        speed=random.randint(1, 4) * 0.01,
+        speed=0.007*mult, #speed=random.randint(1, 4) * 0.01,
         engine=engine)
 
 SPRITE_ZOMBIE = 0
@@ -29,6 +29,7 @@ SPRITE_HEALTH = 8
 
 if __name__ == "__main__":
 
+  difficulty = 1.0
   #Initialise Renderer
   engine = cdll.LoadLibrary('./target/release/libggj19.so')
   engine.init_engine()
@@ -73,6 +74,7 @@ if __name__ == "__main__":
             y = random.randint(0, 32)
         health_drops.append((x + 0.5, y + 0.5))
 
+    
     while len(enemies) < 20:
         x = random.randint(0, 32)
         y = random.randint(0, 32)
@@ -80,7 +82,8 @@ if __name__ == "__main__":
             x = random.randint(0, 2) * 31
         else:
             y = random.randint(0, 2) * 31
-        enemies.append(enemy_factory(engine, x, y))
+        enemies.append(enemy_factory(engine, x, y, difficulty))
+        difficulty += 0.1
 
     #Moves and rotates player as necessary
     player_one.HandleKeys(dt, engine, enemies)
@@ -102,7 +105,7 @@ if __name__ == "__main__":
     engine.draw_world()
     player_one.Draw(1, engine)
 
-    #jb.PlayMusic()
+    jb.PlayMusic()
 
     for mine_drop in mine_drops:
         rx = player_one.GetXPosition() - mine_drop[0]

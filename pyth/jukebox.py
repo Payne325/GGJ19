@@ -11,3 +11,5 @@ class Jukebox:
     if self.IsPlaying() == False:
       self.engine.play_music(self.music[self.jbIndex])
       self.jbIndex += 1
+      if self.jbIndex == 2:
+        self.jbIndex = 0
