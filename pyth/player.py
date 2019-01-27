@@ -8,57 +8,66 @@ class Player(Pawn, Drawable):
     Pawn.__init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed)
     Drawable.__init__(self)
     self.resource = resource
-    self.rotOff = 0.004
+    self.rotOff = 0.003
+    self.mine_count = 0
 
   def HandleKeys(self, dt, engine, enemies):
     if engine.get_key(0):
-        self.MoveForward(dt)
+        multi = 0.3 if engine.get_key(7) else 1.5
+        self.MoveForward(dt, multi)
 
     if engine.get_key(1):
-        self.MoveLeft(dt)
+        multi = 0.3 if engine.get_key(7) else 0.8
+        self.MoveLeft(dt, multi)
 
     if engine.get_key(2):
-        self.MoveBackward(dt)
+        multi = 0.3 if engine.get_key(7) else 1.5
+        self.MoveBackward(dt, multi)
 
     if engine.get_key(3):
-        self.MoveRight(dt)
+        multi = 0.3 if engine.get_key(7) else 0.8
+        self.MoveRight(dt, multi)
 
     if engine.get_key(6):
-        self.Attack(enemies)
+        if self.attack_cooldown == 1:
+            engine.play_sound(0)
+        self.Attack(engine, enemies)
 
     if engine.get_key(4):
-        self.RotateLeft(dt)
+        multi = 0.2 if engine.get_key(7) else 1.0
+        self.RotateLeft(dt, multi)
 
     if engine.get_key(5):
-        self.RotateRight(dt)
+        multi = 0.2 if engine.get_key(7) else 1.0
+        self.RotateRight(dt, multi)
 
-  def MoveForward(self, dt):
+  def MoveForward(self, dt, multi):
     ori = self.GetOrientationAngle()
-    self.x_velocity += (math.cos(ori) * self.speed) * dt
-    self.y_velocity += -math.sin(ori) * self.speed * dt
+    self.x_velocity += (math.cos(ori) * self.speed) * dt * multi
+    self.y_velocity += -math.sin(ori) * self.speed * dt * multi
 
-  def MoveBackward(self, dt):
+  def MoveBackward(self, dt, multi):
     ori = self.GetOrientationAngle()
-    self.x_velocity += math.cos(ori) * -self.speed * dt
-    self.y_velocity += -math.sin(ori) * -self.speed * dt
+    self.x_velocity += math.cos(ori) * -self.speed * dt * multi
+    self.y_velocity += -math.sin(ori) * -self.speed * dt * multi
 
-  def MoveLeft(self, dt):
+  def MoveLeft(self, dt, multi):
     ori = self.GetOrientationAngle() + (math.pi/2)
-    self.x_velocity += math.cos(ori) * -self.speed * dt
-    self.y_velocity += -math.sin(ori) * -self.speed * dt
+    self.x_velocity += math.cos(ori) * -self.speed * dt * multi
+    self.y_velocity += -math.sin(ori) * -self.speed * dt * multi
 
-  def MoveRight(self, dt):
+  def MoveRight(self, dt, multi):
     ori = self.GetOrientationAngle() + (math.pi/2)
-    self.x_velocity += math.cos(ori) * self.speed * dt
-    self.y_velocity += -math.sin(ori) * self.speed * dt
+    self.x_velocity += math.cos(ori) * self.speed * dt * multi
+    self.y_velocity += -math.sin(ori) * self.speed * dt * multi
 
-  def RotateLeft(self, dt):
-    ori = self.GetOrientationAngle() - self.rotOff * dt
+  def RotateLeft(self, dt, multi):
+    ori = self.GetOrientationAngle() - self.rotOff * dt * multi
     self.x_orientation = math.cos(ori)
     self.y_orientation = -math.sin(ori)
 
-  def RotateRight(self, dt):
-    ori = self.GetOrientationAngle() + self.rotOff * dt
+  def RotateRight(self, dt, multi):
+    ori = self.GetOrientationAngle() + self.rotOff * dt * multi
     self.x_orientation = math.cos(ori)
     self.y_orientation = -math.sin(ori)
 

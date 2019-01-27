@@ -25,7 +25,7 @@ class Pathfinder:
           examinedNode = node
 
       #if that node is our target then path complete
-      if (examinedNode.GetPosition()[0] == int(target_x) and examinedNode.GetPosition()[1] == int(target_y)) or jitterator >= 50:
+      if (examinedNode.GetPosition()[0] == int(target_x) and examinedNode.GetPosition()[1] == int(target_y)) or jitterator >= 20:
         #RETURN PATH
 
         path = [examinedNode]
@@ -40,8 +40,8 @@ class Pathfinder:
         firstNode = path[pathSize-1]
         secondNode = path[pathSize-2]
 
-        x = secondNode.GetPosition()[0] -firstNode.GetPosition()[0]
-        y = secondNode.GetPosition()[1] -firstNode.GetPosition()[1]
+        x = secondNode.GetPosition()[0] + 0.5 -start_x
+        y = secondNode.GetPosition()[1] + 0.5 -start_y
 
         if secondNode.GetPosition() == firstNode.GetPosition():
             return (random.randint(-10, 10), random.randint(-10, 10))
@@ -53,8 +53,16 @@ class Pathfinder:
         x = examinedNode.GetPosition()[0]
         y = examinedNode.GetPosition()[1]
 
-        for i in range(int(x)-1, int(x)+2):
-          for j in range(int(y)-1, int(y)+2):
+        dirs = [
+            ( 0,  1),
+            ( 0, -1),
+            ( 1,  0),
+            (-1,  0),
+        ]
+        for d in dirs:
+            i = int(x) + d[0]
+            j = int(y) + d[1]
+
             found = False
             isObsticle = self.engine.get_cell_kind(i, j) > 0
             cost = sys.maxsize if isObsticle else max(abs(x - target_x), abs(y - target_y))

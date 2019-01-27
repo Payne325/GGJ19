@@ -22,7 +22,7 @@ class Enemy(Pawn, Drawable):
   def Update(self, targetPawn):
     #self.state_machine.Update(self.x_position, self.y_position, targetPawn)
 
-    if (self.prev_x != int(self.x_position) or self.prev_y != int(self.y_position)) or random.randint(0, 1000) == 0:
+    if (self.prev_x != int(self.x_position) or self.prev_y != int(self.y_position)) or random.randint(0, 100) == 0:
       target_x = targetPawn.GetXPosition()
       target_y = targetPawn.GetYPosition()
 

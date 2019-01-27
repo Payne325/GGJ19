@@ -97,13 +97,16 @@ impl World {
             player: Player::new(),
         };
 
-        world.cells[8][8].height = 0.3;
-        world.cells[8][8].kind = 4;
+        for i in 2..32 {
+            for j in 2..32 {
+                if (i as f32 * 1373.3 + (j as f32 * 2232.3).sin() * 382.7).sin() > 0.95 {
+                    world.cells[i][j].height = 1.5;
+                    world.cells[i][j].kind = 1;
+                }
+            }
+        }
 
-        world.cells[5][12].height = 0.5;
-        world.cells[5][12].kind = 2;
-
-        for i in 0..20 {
+        /*for i in 0..20 {
             world.cells[0][i].height = 0.7 + (i % 4) as f32 * 0.25;
             world.cells[0][i].kind = 1;
 
@@ -115,7 +118,7 @@ impl World {
 
             world.cells[i][20].height = 0.7 + (i % 4) as f32 * 0.25;
             world.cells[i][20].kind = 4;
-        }
+        }*/
 
         world
     }
@@ -130,6 +133,7 @@ impl World {
 
     pub fn cast_ray<'a>(&'a self, mut pos: Vec2<f32>, dir: Vec2<f32>, mut t: f32, height_thresh: f32) -> Result<(f32, &'a Cell), ()> {
         const PLANCK: f32 = 0.0001;
+        let dir = dir.normalized();
         for i in 0..64 {
             let cpos = pos + dir * t;
 
@@ -174,9 +178,16 @@ impl Textures {
     }
 
     pub fn sprite_at(&self, pos: Vec2<f32>, idx: usize) -> u32 {
-        let x = (pos.x as u32) & 0x7F;
-        let y = (pos.y as u32) & 0x7F;
+        let x = (pos.x as u32) & (self.sprite_sz(idx).x - 1);
+        let y = (pos.y as u32) & (self.sprite_sz(idx).y - 1);
         rgba_to_u32(*self.sprites[idx].get_pixel(x, y))
+    }
+
+    pub fn sprite_sz(&self, idx: usize) -> Vec2<u32> {
+        Vec2::new(
+            self.sprites[idx].width(),
+            self.sprites[idx].height(),
+        )
     }
 }
 
@@ -193,6 +204,7 @@ struct Engine {
     color: Option<Buffer2d<u32>>,
     depth: Option<Buffer2d<f32>>,
     keys: Option<Vec<i32>>,
+    pressed: Option<Vec<i32>>,
     tex: Option<Textures>,
     sound_dev: Option<rodio::Device>,
     sounds: Option<Sounds>,
@@ -215,6 +227,7 @@ impl Engine {
             color: None,
             depth: None,
             keys: None,
+            pressed: None,
             tex: None,
             sound_dev: None,
             sounds: None,
@@ -245,6 +258,7 @@ impl Engine {
         self.depth = Some(Buffer2d::new(WIN_SZ, 0.0));
 
         self.keys = Some(vec![]);
+        self.pressed = Some(vec![]);
 
         self.tex = Some(Textures {
             tiles: image::open("assets/tiles.png").unwrap().to_rgba(),
@@ -253,6 +267,13 @@ impl Engine {
             sprites: vec![
                 image::open("assets/zombie.png").unwrap().to_rgba(),
                 image::open("assets/mine.png").unwrap().to_rgba(),
+                image::open("assets/gun.png").unwrap().to_rgba(),
+                image::open("assets/gun-fire.png").unwrap().to_rgba(),
+                image::open("assets/heart.png").unwrap().to_rgba(),
+                image::open("assets/gun-zoom.png").unwrap().to_rgba(),
+                image::open("assets/gun-zoom-fire.png").unwrap().to_rgba(),
+                image::open("assets/mine_item.png").unwrap().to_rgba(),
+                image::open("assets/health.png").unwrap().to_rgba(),
             ],
         });
 
@@ -261,6 +282,8 @@ impl Engine {
         self.sounds = Some(Sounds {
             sounds: vec![
                 String::from("assets/gunshot.wav"),
+                String::from("assets/mine_pickup.wav"),
+                String::from("assets/attack.wav"),
             ],
         });
     }
@@ -323,6 +346,8 @@ impl Engine {
         //draw_sprite(6.0, 6.0, (world.player.pos - Vec2::broadcast(6.0)).magnitude(), 0);
         //draw_sprite(15.0, 15.0, (world.player.pos - Vec2::broadcast(15.0)).magnitude(), 1);
 
+        //draw_decal(128, 128, 0);
+
         let mut keys = vec![];
         for key in win.get_keys().unwrap_or(vec![]) {
             match key {
@@ -333,10 +358,21 @@ impl Engine {
                 Key::Left => keys.push(4),
                 Key::Right => keys.push(5),
                 Key::Space => keys.push(6),
+                Key::LeftShift => keys.push(7),
                 _ => {},
             }
         }
         self.keys = Some(keys);
+
+        let mut pressed = vec![];
+        for key in win.get_keys_pressed(minifb::KeyRepeat::No).unwrap_or(vec![]) {
+            match key {
+                Key::Q => pressed.push(0),
+                Key::E => pressed.push(1),
+                _ => {},
+            }
+        }
+        self.pressed = Some(pressed);
     }
 
     fn draw_sprite(&mut self, pos: Vec2<f32>, dist: f32, img: i32) {
@@ -353,7 +389,7 @@ impl Engine {
             let scrn_img_ori = (-rpos.y).atan2(rpos.x);
 
             let rori = angle_diff(scrn_ori, scrn_img_ori);
-            let xx = rori * 100.0 * dist + 64.0;
+            let xx = rori * 100.0 * dist * 1.5 + 64.0;
 
             if xx < 0.0 || xx > 128.0 {
                 continue;
@@ -361,15 +397,34 @@ impl Engine {
             for y in 0..WIN_SZ.y {
                 let rpos = Vec2::new(
                     xx,
-                    (y as f32 - WIN_SZ.y as f32 / 2.0) * 0.15 * dist + 64.0,
+                    (y as f32 - WIN_SZ.y as f32 / 2.0) * 1.5 * 0.15 * dist + 24.0,
                 );
                 if rpos.y > 0.0 {
                     if dist < *depth.get(Vec2::new(x, y)) {
                         let px = tex.sprite_at(rpos, img as usize);
                         if px & 0xFF000000 != 0 {
                             color.set(Vec2::new(x, y), px);
+                            depth.set(Vec2::new(x, y), dist);
                         }
                     }
+                }
+            }
+        }
+    }
+
+    fn draw_decal(&mut self, pos: Vec2<u32>, img: i32) {
+        let mut color = self.color.as_mut().unwrap();
+        let mut world = self.world.as_mut().unwrap();
+        let mut win = self.win.as_mut().unwrap();
+        let mut tex = self.tex.as_mut().unwrap();
+
+        let sz = tex.sprite_sz(img as usize);
+
+        for x in pos.x as usize..(pos.x as usize + sz.x as usize).min(WIN_SZ.x) {
+            for y in pos.y as usize..(pos.y as usize + sz.y as usize).min(WIN_SZ.y) {
+                let px = tex.sprite_at(Vec2::new((x - pos.x as usize) as f32, (y - pos.y as usize) as f32), img as usize);
+                if px & 0xFF000000 != 0 {
+                    color.set(Vec2::new(x, y), px);
                 }
             }
         }
@@ -421,6 +476,12 @@ pub extern "C" fn get_key(code: i32) -> i32 {
 }
 
 #[no_mangle]
+pub extern "C" fn get_key_pressed(code: i32) -> i32 {
+    let mut engine = unsafe { &mut ENGINE };
+    if engine.pressed.as_mut().unwrap().contains(&code) { 1 } else { 0 }
+}
+
+#[no_mangle]
 pub extern "C" fn put_camera(x: f32, y: f32, ori: f32) {
     let mut engine = unsafe { &mut ENGINE };
     engine.world.as_mut().unwrap().player.pos = Vec2::new(x, y);
@@ -459,4 +520,16 @@ pub extern "C" fn play_sound(n: i32) {
 pub extern "C" fn draw_sprite(x: f32, y: f32, dist: f32, img: i32) {
     let mut engine = unsafe { &mut ENGINE };
     engine.draw_sprite(Vec2::new(x, y), dist, img);
+}
+
+#[no_mangle]
+pub extern "C" fn draw_decal(x: i32, y: i32, img: i32) {
+    let mut engine = unsafe { &mut ENGINE };
+    engine.draw_decal(Vec2::new(x as u32, y as u32), img);
+}
+
+#[no_mangle]
+pub extern "C" fn cast_ray(x: f32, y: f32, dir_x: f32, dir_y: f32, min_height: f32) -> i32 {
+    let mut engine = unsafe { &mut ENGINE };
+    engine.world.as_mut().unwrap().cast_ray(Vec2::new(x, y), Vec2::new(dir_x, dir_y), 0.0, min_height).map(|e| e.0 * 100.0).unwrap_or(100000.0) as i32
 }
