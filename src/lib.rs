@@ -16,6 +16,8 @@ use image::{
     self,
     RgbaImage,
     DynamicImage,
+    GenericImage,
+    GenericImageView,
 };
 use rodio::{
     self,
@@ -83,7 +85,7 @@ impl Player {
     }
 }
 
-const WORLD_SZ: Vec2<usize> = Vec2 { x: 64, y: 64 };
+const WORLD_SZ: Vec2<usize> = Vec2 { x: 256, y: 256 };
 
 struct World {
     cells: [[Cell; WORLD_SZ.y]; WORLD_SZ.x],
@@ -123,27 +125,27 @@ impl World {
         world
     }
 
-    pub fn get_at(&self, pos: Vec2<usize>) -> Option<&Cell> {
-        self.cells.get(pos.x).and_then(|col| col.get(pos.y))
+    pub fn get_at(&self, pos: Vec2<usize>) -> &Cell {
+        unsafe { self.cells.get_unchecked(pos.x & (WORLD_SZ.x - 1)).get_unchecked(pos.y & (WORLD_SZ.y - 1)) }
     }
 
-    pub fn get_at_mut(&mut self, pos: Vec2<usize>) -> Option<&mut Cell> {
-        self.cells.get_mut(pos.x).and_then(|col| col.get_mut(pos.y))
+    pub fn get_at_mut(&mut self, pos: Vec2<usize>) -> &mut Cell {
+        unsafe { self.cells.get_unchecked_mut(pos.x & (WORLD_SZ.x - 1)).get_unchecked_mut(pos.y & (WORLD_SZ.y - 1)) }
     }
 
     pub fn cast_ray<'a>(&'a self, mut pos: Vec2<f32>, dir: Vec2<f32>, mut t: f32, height_thresh: f32) -> Result<(f32, &'a Cell), ()> {
         const PLANCK: f32 = 0.0001;
         let dir = dir.normalized();
-        for i in 0..64 {
+        let step = dir.map(|e| (e.signum() + 1.0).min(1.0));
+        for i in 0..128 {
             let cpos = pos + dir * t;
 
-            if let Some(cell) = self.get_at(cpos.map(|e| e as usize)) {
-                if cell.height > height_thresh {
-                    return Ok((t, &cell));
-                }
+            let cell = self.get_at(cpos.map(|e| e as usize));
+            if cell.height > height_thresh {
+                return Ok((t, &cell));
             }
 
-            let deltas = (dir.map(|e| (e.signum() + 1.0).min(1.0)) - cpos.map(|e| e.fract())) / dir;
+            let deltas = (step - cpos.map(|e| e.fract())) / dir;
             t += deltas.reduce_partial_min().max(PLANCK);
         }
         return Err(());
@@ -168,19 +170,19 @@ impl Textures {
     pub fn wall_at(&self, pos: Vec2<f32>, kind: u32) -> u32 {
         let x = ((16.0 * pos.x) as u32) & 0xF;
         let y = ((16.0 * pos.y) as u32) & 0xF;
-        rgba_to_u32(*self.tiles.get_pixel(x + kind * 16, y))
+        unsafe { rgba_to_u32(self.tiles.unsafe_get_pixel(x + kind * 16, y)) }
     }
 
     pub fn floor_at(&self, pos: Vec2<f32>) -> u32 {
         let x = ((50.0 * pos.x) as u32) & 0xFF;
         let y = ((50.0 * pos.y) as u32) & 0xFF;
-        rgba_to_u32(*self.floor.get_pixel(x, y))
+        unsafe { rgba_to_u32(self.floor.unsafe_get_pixel(x, y)) }
     }
 
     pub fn sprite_at(&self, pos: Vec2<f32>, idx: usize) -> u32 {
         let x = (pos.x as u32) & (self.sprite_sz(idx).x - 1);
         let y = (pos.y as u32) & (self.sprite_sz(idx).y - 1);
-        rgba_to_u32(*self.sprites[idx].get_pixel(x, y))
+        unsafe { rgba_to_u32(self.sprites[idx].unsafe_get_pixel(x, y)) }
     }
 
     pub fn sprite_sz(&self, idx: usize) -> Vec2<u32> {
@@ -200,6 +202,7 @@ const WIN_SZ: Vec2<usize> = Vec2 { x: 800, y: 600 };
 struct Engine {
     clock: Option<Clock>,
     win: Option<Window>,
+    music: Option<rodio::Sink>,
     world: Option<World>,
     color: Option<Buffer2d<u32>>,
     depth: Option<Buffer2d<f32>>,
@@ -223,6 +226,7 @@ impl Engine {
         Self {
             clock: None,
             win: None,
+            music: None,
             world: None,
             color: None,
             depth: None,
@@ -322,7 +326,7 @@ impl Engine {
                 .get_look_dir((x as f32 - WIN_SZ.x as f32 / 2.0) * FOV);
 
             for y in WIN_SZ.y / 2..WIN_SZ.y {
-                let dist = floor_dists[y - WIN_SZ.y / 2];
+                let dist = floor_dists[y - WIN_SZ.y / 2];// + (y as f32).sin().sin().sin().sin().sin().sin().sin().sin().sin().sin().sin().sin().sin() * 0.0001;
                 color.set(Vec2::new(x, y), tex.floor_at(world.player.pos + col_dir * dist));
                 depth.set(Vec2::new(x, y), dist);
             }
@@ -330,7 +334,7 @@ impl Engine {
             let mut lim_min = WIN_SZ.y;
             let mut height_thresh = 0.0;
             let mut t = 0.0;
-            for i in 0..5 {
+            for i in 0..3 {
                 if let Ok((dist, cell)) = world.cast_ray(world.player.pos, col_dir, t, height_thresh) {
                     let top_height = 1000.0 * (cell.height - 0.5).atan2(dist);
                     let bot_height = 1000.0 * (0.5f32).atan2(dist);
@@ -503,20 +507,20 @@ pub extern "C" fn put_camera(x: f32, y: f32, ori: f32) {
 #[no_mangle]
 pub extern "C" fn set_cell(x: i32, y: i32, height: f32, kind: i32) {
     let mut engine = unsafe { &mut ENGINE };
-    engine.world.as_mut().unwrap().get_at_mut(Vec2::new(x as usize, y as usize)).map(|cell| cell.height = height);
-    engine.world.as_mut().unwrap().get_at_mut(Vec2::new(x as usize, y as usize)).map(|cell| cell.kind = kind);
+    engine.world.as_mut().unwrap().get_at_mut(Vec2::new(x as usize, y as usize)).height = height;
+    engine.world.as_mut().unwrap().get_at_mut(Vec2::new(x as usize, y as usize)).kind = kind;
 }
 
 #[no_mangle]
 pub extern "C" fn get_cell_height(x: i32, y: i32) -> f32 {
     let mut engine = unsafe { &mut ENGINE };
-    engine.world.as_mut().unwrap().get_at_mut(Vec2::new(x as usize, y as usize)).map(|cell| cell.height).unwrap_or(0.0)
+    engine.world.as_mut().unwrap().get_at_mut(Vec2::new(x as usize, y as usize)).height
 }
 
 #[no_mangle]
 pub extern "C" fn get_cell_kind(x: i32, y: i32) -> i32 {
     let mut engine = unsafe { &mut ENGINE };
-    engine.world.as_mut().unwrap().get_at_mut(Vec2::new(x as usize, y as usize)).map(|cell| cell.kind).unwrap_or(0)
+    engine.world.as_mut().unwrap().get_at_mut(Vec2::new(x as usize, y as usize)).kind
 }
 
 #[no_mangle]
@@ -526,6 +530,22 @@ pub extern "C" fn play_sound(n: i32) {
     let mut sounds = engine.sounds.as_mut().unwrap();
 
     rodio::play_once(sound_dev, std::io::BufReader::new(std::fs::File::open(&sounds.sounds[n as usize]).unwrap())).unwrap().detach();
+}
+
+#[no_mangle]
+pub extern "C" fn play_music(n: i32) {
+    let mut engine = unsafe { &mut ENGINE };
+    let mut sound_dev = engine.sound_dev.as_mut().unwrap();
+    let mut sounds = engine.sounds.as_mut().unwrap();
+
+    engine.music = Some(rodio::play_once(sound_dev, std::io::BufReader::new(std::fs::File::open(&sounds.sounds[n as usize]).unwrap())).unwrap());
+}
+
+#[no_mangle]
+pub extern "C" fn music_is_playing() -> i32 {
+    let mut engine = unsafe { &mut ENGINE };
+
+    if engine.music.as_ref().map(|snd| !snd.empty()).unwrap_or(false) { 1 } else { 0 }
 }
 
 #[no_mangle]

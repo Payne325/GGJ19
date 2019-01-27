@@ -51,9 +51,9 @@ class Player(Pawn, Drawable):
         self.PlayMoveSF(engine)
 
     if engine.get_key(6):
-        if self.attack_cooldown == 1:
-            engine.play_sound(0)
         self.Attack(engine, enemies)
+        if self.attack_cooldown == 0:
+            engine.play_sound(0)
 
     if engine.get_key(4):
         multi = 0.2 if engine.get_key(7) else 1.0

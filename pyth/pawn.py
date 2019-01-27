@@ -16,9 +16,10 @@ class Pawn:
 
   def Tick(self, engine, dt):
     vel_len = math.sqrt(self.x_velocity ** 2.0 + self.y_velocity ** 2.0)
-    self.x_velocity *= math.pow(0.95, dt)
-    self.y_velocity *= math.pow(0.95, dt)
-    self.attack_cooldown += 1
+    for i in range(int(dt ** 0.4) + 2):
+        self.x_velocity *= 0.85
+        self.y_velocity *= 0.85
+    self.attack_cooldown += dt / 15
 
     def would_collide(this, engine, x, y):
         dirs = [
