@@ -12,7 +12,7 @@ def enemy_factory(engine, x, y):
         x_orientation=-1,
         y_orientation=-1,
         weapon=Fists(),
-        speed=random.randint(2, 5) * 0.01,
+        speed=random.randint(1, 4) * 0.01,
         engine=engine)
 
 SPRITE_ZOMBIE = 0
@@ -85,12 +85,14 @@ if __name__ == "__main__":
     engine.put_camera(c_float(player_one.GetXPosition()), c_float(player_one.GetYPosition()), c_float(player_one.GetOrientationAngle()))
 
     #Perform enemy update
+    deadEnemies = []
     for enemy in enemies:
       enemy.Update(player_one)
       enemy.Tick(engine, dt)
       if enemy.health <= 0:
           enemies.remove(enemy)
 
+    #draw
     engine.draw_world()
     player_one.Draw(1, engine)
 

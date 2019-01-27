@@ -305,12 +305,16 @@ impl Engine {
         color.clear(SKY_BLUE);
         depth.clear(10000.0);
 
+        let floor_dists = (WIN_SZ.y / 2..WIN_SZ.y)
+            .map(|y| (std::f32::consts::PI / 2.0 - (y as f32 - WIN_SZ.y as f32 / 2.0) * 0.002).tan())
+            .collect::<Vec<_>>();
+
         for x in 0..WIN_SZ.x {
             let col_dir = world.player
                 .get_look_dir((x as f32 - WIN_SZ.x as f32 / 2.0) * FOV);
 
             for y in WIN_SZ.y / 2..WIN_SZ.y {
-                let dist = (std::f32::consts::PI / 2.0 - (y as f32 - WIN_SZ.y as f32 / 2.0) * 0.002).tan();
+                let dist = floor_dists[y - WIN_SZ.y / 2];
                 color.set(Vec2::new(x, y), tex.floor_at(world.player.pos + col_dir * dist));
                 depth.set(Vec2::new(x, y), dist);
             }

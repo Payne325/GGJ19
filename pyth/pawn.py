@@ -111,7 +111,7 @@ class Pawn:
         c_float(to_other[0] / to_other_leng),
         c_float(to_other[1] / to_other_leng),
         c_float(0.3) # Minimum obstacle height
-    )) / 100.0
+    )) / 100.0 # cast_ray produces 100x the distance because hur dur C FFI
 
     #print(ray_dist)
     #print(to_other_leng)
@@ -121,7 +121,7 @@ class Pawn:
         return (False, 1000.0)
 
   def Attack(self, engine, pawns):
-    if self.attack_cooldown < 5:
+    if self.attack_cooldown < 15:
         return
     else:
         self.attack_cooldown = 0
