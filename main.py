@@ -48,10 +48,9 @@ if __name__ == "__main__":
   health_drops = []
   mines = []
 
-  dt = 0.0
+  dt = 0
   bob = 0.0
   while engine.window_is_open():
-
     while len(mine_drops) < 5:
         x = random.randint(0, 32)
         y = random.randint(0, 32)
