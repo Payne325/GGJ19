@@ -17,7 +17,7 @@ class Weapon():
 
 class Gun(Weapon):
   def __init__(self):
-    Weapon.__init__(self, 10, 50, FISTS_SPRITE_INDEX)
+    Weapon.__init__(self, 5, 50, FISTS_SPRITE_INDEX)
 
 class Fists(Weapon):
   def __init__(self):

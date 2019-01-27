@@ -17,6 +17,10 @@ class Player(Pawn, Drawable):
     self.sfCooldown += 1
     Pawn.Tick(self, engine, dt)
 
+  def TakeImmediateDamage(self, damage, engine):
+    Pawn.TakeImmediateDamage(self, damage, engine)
+    engine.play_sound(11)
+
   def PlayMoveSF(self, engine):
     if self.sfCooldown < 15:
       return

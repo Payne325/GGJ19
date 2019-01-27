@@ -19,6 +19,10 @@ class Enemy(Pawn, Drawable):
     self.prev_y = -1
     self.tgt_velocity = (0, 0)
 
+    def TakeImmediateDamage(self, damage, engine):
+      Pawn.TakeImmediateDamage(self, damage, engine)
+      engine.play_sound(14)
+
   def Update(self, targetPawn, engine):
     def DoAttack(this, targetPawn, engine):
       playerPos = [targetPawn.GetXPosition(), targetPawn.GetYPosition()]

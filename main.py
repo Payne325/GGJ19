@@ -6,15 +6,15 @@ from pyth.mapgen import MapGen
 from pyth.jukebox import Jukebox
 import math, random
 
-def enemy_factory(engine, x, y):
+def enemy_factory(engine, x, y, mult):
     return Enemy(
-        health=3,
+        health=math.trunc(3*mult),
         x_position=x,
         y_position=y,
         x_orientation=-1,
         y_orientation=-1,
         weapon=Fists(),
-        speed=random.randint(1, 4) * 0.01,
+        speed=0.007*mult, #speed=random.randint(1, 4) * 0.01,
         engine=engine)
 
 SPRITE_ZOMBIE = 0
@@ -30,10 +30,11 @@ SPRITE_GAME_OVER = 9
 
 if __name__ == "__main__":
 
+  difficulty = 1.0
   #Initialise Renderer
   #engine = cdll.LoadLibrary('./target/release/libggj19.dll')
   engine = cdll.LoadLibrary('./target/x86_64-pc-windows-gnu/release/ggj19.dll')
-  
+
   engine.init_engine()
 
   #MapGen(engine, './assets/Map.bmp')
@@ -76,14 +77,20 @@ if __name__ == "__main__":
             y = random.randint(0, 32)
         health_drops.append((x + 0.5, y + 0.5))
 
+
     while len(enemies) < 20:
-        x = random.randint(0, 32)
-        y = random.randint(0, 32)
-        if random.randint(0, 2) == 0:
-            x = random.randint(0, 2) * 31
-        else:
-            y = random.randint(0, 2) * 31
-        enemies.append(enemy_factory(engine, x, y))
+        spawn_idx = random.randint(0, len(spawn_points) - 1)
+        x = spawn_points[spawn_idx][0]
+        y = spawn_points[spawn_idx][1]
+        #while engine.get_cell_kind(int(x), int(y)) != 0:
+        #    x = random.randint(0, 32)
+        #    y = random.randint(0, 32)
+        #if random.randint(0, 2) == 0:
+        #    x = random.randint(0, 2) * 31
+        #else:
+        #    y = random.randint(0, 2) * 31
+        enemies.append(enemy_factory(engine, x + 0.5, y + 0.5, difficulty))
+        difficulty += 0.1
 
     #Moves and rotates player as necessary
     player_one.HandleKeys(dt, engine, enemies)
@@ -99,6 +106,7 @@ if __name__ == "__main__":
       enemy.Tick(engine, dt)
       if enemy.health <= 0:
           enemies.remove(enemy)
+          engine.play_sound(15)
 
     #draw
     engine.draw_world()
