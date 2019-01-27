@@ -9,7 +9,7 @@ Game Engine Programmer - Joshua Barretto
 Software Architect - Alexander Payne
 Game Logic Programmers - Joshua Barretto, Alexander Payne
 Texture and Level Designer - Tom Lewis
-Sound and Music Designer - Gnom
+Sound and Music Designer - Kristian Amdersen
 
 
 Compiling from source:
