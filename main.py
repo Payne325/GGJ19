@@ -32,12 +32,12 @@ if __name__ == "__main__":
 
   difficulty = 1.0
   #Initialise Renderer
-  #engine = cdll.LoadLibrary('./target/release/libggj19.dll')
-  engine = cdll.LoadLibrary('./target/x86_64-pc-windows-gnu/release/ggj19.dll')
+  engine = cdll.LoadLibrary('./target/release/libggj19.so')
+  #engine = cdll.LoadLibrary('./target/x86_64-pc-windows-gnu/release/ggj19.dll')
 
   engine.init_engine()
 
-  #MapGen(engine, './assets/Map.bmp')
+  MapGen(engine, './assets/biggermap.bmp')
 
   jb = Jukebox(engine)
 
@@ -45,8 +45,8 @@ if __name__ == "__main__":
 
   player_one = Player(
                 health=10,
-                x_position=4.5,
-                y_position=4.5,
+                x_position=18.5,
+                y_position=18.5,
                 x_orientation=1.0,
                 y_orientation=0.0,
                 weapon=Gun(),
@@ -57,6 +57,15 @@ if __name__ == "__main__":
   mine_drops = []
   health_drops = []
   mines = []
+
+  spawn_points = [
+      (77, 7),
+      (25, 33),
+      (14, 94),
+      (62, 46),
+      (46, 20),
+      (6, 65)
+  ]
 
   dt = 0
   bob = 0.0
