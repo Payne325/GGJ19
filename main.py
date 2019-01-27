@@ -26,6 +26,7 @@ SPRITE_GUN_ZOOM = 5
 SPRITE_GUN_ZOOM_FIRE = 6
 SPRITE_MINE_ITEM = 7
 SPRITE_HEALTH = 8
+SPRITE_GAME_OVER = 9
 
 if __name__ == "__main__":
 
@@ -55,6 +56,15 @@ if __name__ == "__main__":
   health_drops = []
   mines = []
 
+  spawn_points = [
+      (6, 45),
+      (37, 26),
+      (49, 5),
+      (63, 53),
+      (28, 100),
+      (7, 64)
+  ]
+
   dt = 0
   bob = 0.0
   while engine.window_is_open():
@@ -76,13 +86,17 @@ if __name__ == "__main__":
 
     
     while len(enemies) < 20:
-        x = random.randint(0, 32)
-        y = random.randint(0, 32)
-        if random.randint(0, 2) == 0:
-            x = random.randint(0, 2) * 31
-        else:
-            y = random.randint(0, 2) * 31
-        enemies.append(enemy_factory(engine, x, y, difficulty))
+        spawn_idx = random.randint(0, len(spawn_points) - 1)
+        x = spawn_points[spawn_idx][0]
+        y = spawn_points[spawn_idx][1]
+        #while engine.get_cell_kind(int(x), int(y)) != 0:
+        #    x = random.randint(0, 32)
+        #    y = random.randint(0, 32)
+        #if random.randint(0, 2) == 0:
+        #    x = random.randint(0, 2) * 31
+        #else:
+        #    y = random.randint(0, 2) * 31
+        enemies.append(enemy_factory(engine, x + 0.5, y + 0.5, difficulty))
         difficulty += 0.1
 
     #Moves and rotates player as necessary
@@ -166,4 +180,11 @@ if __name__ == "__main__":
         engine.draw_decal(16 + 16 * i, 64, SPRITE_MINE_ITEM)
 
     dt = engine.update_window()
+
+  while engine.window_is_open():
+    if engine.get_key(6):
+        engine.close_engine()
+        break
+    engine.draw_decal(400 - 128, 300 - 127, SPRITE_GAME_OVER)
+    engine.update_window()
   #End

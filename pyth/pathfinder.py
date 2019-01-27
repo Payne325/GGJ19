@@ -25,7 +25,7 @@ class Pathfinder:
           examinedNode = node
 
       #if that node is our target then path complete
-      if (examinedNode.GetPosition()[0] == int(target_x) and examinedNode.GetPosition()[1] == int(target_y)) or jitterator >= 20:
+      if (examinedNode.GetPosition()[0] == int(target_x) and examinedNode.GetPosition()[1] == int(target_y)) or jitterator >= 30:
         #RETURN PATH
 
         path = [examinedNode]
