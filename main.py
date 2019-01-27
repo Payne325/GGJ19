@@ -2,6 +2,7 @@ from pyth.player import Player
 from pyth.enemy import Enemy
 from pyth.weapon import *
 from ctypes import cdll, c_float
+from pyth.mapgen import MapGen
 import math, random
 
 def enemy_factory(engine, x, y):
@@ -31,15 +32,17 @@ if __name__ == "__main__":
   engine = cdll.LoadLibrary('./target/release/libggj19.so')
   engine.init_engine()
 
+  MapGen(engine, './assets/Map.bmp')
+
   #Initialise Game Entities
 
   player_one = Player(
                 health=10,
-                x_position=2,
-                y_position=2,
+                x_position=4.5,
+                y_position=4.5,
                 x_orientation=1.0,
                 y_orientation=0.0,
-                weapon=Fists(),
+                weapon=Gun(),
                 resource=50,
 				        speed=0.007)
 
@@ -86,7 +89,7 @@ if __name__ == "__main__":
     #Perform enemy update
     deadEnemies = []
     for enemy in enemies:
-      enemy.Update(player_one)
+      enemy.Update(player_one, engine)
       enemy.Tick(engine, dt)
       if enemy.health <= 0:
           enemies.remove(enemy)
@@ -116,6 +119,13 @@ if __name__ == "__main__":
             health_drops.remove(health_drop)
             engine.play_sound(1) # Health pickup
             player_one.health = min(20, player_one.health + 1)
+
+    if len(enemies) == 0:
+      print("YOU PROTECTED YOUR HOME! YOU WIN!")
+      break
+    elif player_one.health == 0:
+      print("YOU'RE DEAD AS FUCK! YOU LOSE!")
+      break
 
     for enemy in enemies:
       playerPos = [player_one.GetXPosition(), player_one.GetYPosition()]
