@@ -14,7 +14,7 @@ def enemy_factory(engine, x, y, mult):
         x_orientation=-1,
         y_orientation=-1,
         weapon=Fists(),
-        speed=0.007*mult, #speed=random.randint(1, 4) * 0.01,
+        speed=0.014*mult, #speed=random.randint(1, 4) * 0.01,
         engine=engine)
 
 SPRITE_ZOMBIE = 0
