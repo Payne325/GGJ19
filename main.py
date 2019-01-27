@@ -69,26 +69,32 @@ if __name__ == "__main__":
       (14, 94),
       (62, 46),
       (46, 20),
-      (6, 65)
+      (6, 65),
+	  (38, 48),
+	  (36, 55),
+	  (75, 99),
+	  (50, 98),
+	  (7, 95),
+	  (64, 51),
   ]
 
   dt = 0
   bob = 0.0
   while engine.window_is_open():
-    while len(mine_drops) < 5:
-        x = random.randint(0, 32)
-        y = random.randint(0, 32)
+    while len(mine_drops) < 10:
+        x = random.randint(0, 128)
+        y = random.randint(0, 128)
         while engine.get_cell_kind(int(x), int(y)) != 0:
-            x = random.randint(0, 32)
-            y = random.randint(0, 32)
+            x = random.randint(0, 128)
+            y = random.randint(0, 128)
         mine_drops.append((x + 0.5, y + 0.5))
 
-    while len(health_drops) < 5:
-        x = random.randint(0, 32)
-        y = random.randint(0, 32)
+    while len(health_drops) < 10:
+        x = random.randint(0, 128)
+        y = random.randint(0, 128)
         while engine.get_cell_kind(int(x), int(y)) != 0:
-            x = random.randint(0, 32)
-            y = random.randint(0, 32)
+            x = random.randint(0, 128)
+            y = random.randint(0, 128)
         health_drops.append((x + 0.5, y + 0.5))
 
 
