@@ -3,6 +3,7 @@ from pyth.enemy import Enemy
 from pyth.weapon import *
 from ctypes import cdll, c_float
 from pyth.mapgen import MapGen
+from pyth.jukebox import Jukebox
 import math, random
 
 def enemy_factory(engine, x, y):
@@ -34,6 +35,8 @@ if __name__ == "__main__":
   engine.init_engine()
 
   #MapGen(engine, './assets/Map.bmp')
+
+  jb = Jukebox(engine)
 
   #Initialise Game Entities
 
@@ -99,10 +102,7 @@ if __name__ == "__main__":
     engine.draw_world()
     player_one.Draw(1, engine)
 
-    if not engine.music_is_playing():
-        # TODO: Put music here!
-        pass
-        #engine.play_music(0)
+    jb.PlayMusic()
 
     for mine_drop in mine_drops:
         rx = player_one.GetXPosition() - mine_drop[0]

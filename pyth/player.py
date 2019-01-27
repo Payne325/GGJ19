@@ -10,23 +10,45 @@ class Player(Pawn, Drawable):
     self.resource = resource
     self.rotOff = 0.003
     self.mine_count = 0
+    self.moveCounter = 0
+    self.sfCooldown = 15
+
+  def Tick(self, engine, dt):
+    self.sfCooldown += 1
+    Pawn.Tick(self, engine, dt)
+
+  def PlayMoveSF(self, engine):
+    if self.sfCooldown < 15:
+      return
+    
+    self.sfCooldown = 0
+
+    engine.play_sound(self.moveCounter + 4)
+    if self.moveCounter == 3:
+      self.moveCounter = 0
+    else:
+      self.moveCounter += 1
 
   def HandleKeys(self, dt, engine, enemies):
     if engine.get_key(0):
         multi = 0.3 if engine.get_key(7) else 1.5
         self.MoveForward(dt, multi)
+        self.PlayMoveSF(engine)
 
     if engine.get_key(1):
         multi = 0.3 if engine.get_key(7) else 0.8
         self.MoveLeft(dt, multi)
+        self.PlayMoveSF(engine)
 
     if engine.get_key(2):
         multi = 0.3 if engine.get_key(7) else 1.5
         self.MoveBackward(dt, multi)
+        self.PlayMoveSF(engine)
 
     if engine.get_key(3):
         multi = 0.3 if engine.get_key(7) else 0.8
         self.MoveRight(dt, multi)
+        self.PlayMoveSF(engine)
 
     if engine.get_key(6):
         self.Attack(engine, enemies)
