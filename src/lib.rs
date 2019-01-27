@@ -239,6 +239,20 @@ impl Engine {
         }
     }
 
+    fn close(&mut self) {
+        self.clock = None;
+        self.win = None;
+        self.music = None;
+        self.world = None;
+        self.color = None;
+        self.depth = None;
+        self.keys = None;
+        self.pressed = None;
+        self.tex = None;
+        self.sound_dev = None;
+        self.sounds = None;
+    }
+
     fn init(&mut self) {
         self.clock = Some(Clock::new());
 
@@ -278,6 +292,7 @@ impl Engine {
                 image::open("assets/gun-zoom-fire.png").unwrap().to_rgba(),
                 image::open("assets/mine_item.png").unwrap().to_rgba(),
                 image::open("assets/health.png").unwrap().to_rgba(),
+                image::open("assets/gameover.png").unwrap().to_rgba(),
             ],
         });
 
@@ -457,6 +472,12 @@ pub extern "C" fn init_engine() {
     let mut engine = unsafe { &mut ENGINE };
     *engine = Engine::new();
     engine.init();
+}
+
+#[no_mangle]
+pub extern "C" fn close_engine() {
+    let mut engine = unsafe { &mut ENGINE };
+    engine.close();
 }
 
 #[no_mangle]

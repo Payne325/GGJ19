@@ -25,6 +25,7 @@ SPRITE_GUN_ZOOM = 5
 SPRITE_GUN_ZOOM_FIRE = 6
 SPRITE_MINE_ITEM = 7
 SPRITE_HEALTH = 8
+SPRITE_GAME_OVER = 9
 
 if __name__ == "__main__":
 
@@ -32,7 +33,7 @@ if __name__ == "__main__":
   engine = cdll.LoadLibrary('./target/release/libggj19.so')
   engine.init_engine()
 
-  MapGen(engine, './assets/Map.bmp')
+  #MapGen(engine, './assets/Map.bmp')
 
   #Initialise Game Entities
 
@@ -162,4 +163,11 @@ if __name__ == "__main__":
         engine.draw_decal(16 + 16 * i, 64, SPRITE_MINE_ITEM)
 
     dt = engine.update_window()
+
+  while engine.window_is_open():
+    if engine.get_key(6):
+        engine.close_engine()
+        break
+    engine.draw_decal(400 - 128, 300 - 127, SPRITE_GAME_OVER)
+    engine.update_window()
   #End
