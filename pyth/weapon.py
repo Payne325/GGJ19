@@ -15,6 +15,10 @@ class Weapon():
   def GetHitDistance(self):
     return self.hit_distance
 
+class Gun(Weapon):
+  def __init__(self):
+    Weapon.__init__(self, 10, 50, FISTS_SPRITE_INDEX)
+
 class Fists(Weapon):
   def __init__(self):
     Weapon.__init__(self, 1, 1, FISTS_SPRITE_INDEX)

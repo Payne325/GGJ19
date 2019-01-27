@@ -19,8 +19,20 @@ class Enemy(Pawn, Drawable):
     self.prev_y = -1
     self.tgt_velocity = (0, 0)
 
-  def Update(self, targetPawn):
-    #self.state_machine.Update(self.x_position, self.y_position, targetPawn)
+  def Update(self, targetPawn, engine):
+    def DoAttack(this, targetPawn, engine):
+      playerPos = [targetPawn.GetXPosition(), targetPawn.GetYPosition()]
+      enemyPos = [this.GetXPosition(), this.GetYPosition()]
+
+      distance = math.sqrt(
+                ((playerPos[0] - enemyPos[0]) * (playerPos[0] - enemyPos[0])) +
+                ((playerPos[1] - enemyPos[1]) * (playerPos[1] - enemyPos[1])))
+
+      if (distance < 4):
+        this.x_orientation = (playerPos[0] - enemyPos[0]) / distance
+        this.y_orientation = (playerPos[1] - enemyPos[1]) / distance
+        #print("\nOrientation: " + self.x_orientation + " " + self.y_orientation)
+        this.Attack(engine, [targetPawn])
 
     if (self.prev_x != int(self.x_position) or self.prev_y != int(self.y_position)) or random.randint(0, 100) == 0:
       target_x = targetPawn.GetXPosition()
@@ -41,6 +53,8 @@ class Enemy(Pawn, Drawable):
 
     self.x_velocity += self.tgt_velocity[0] * self.speed
     self.y_velocity += self.tgt_velocity[1] * self.speed
+
+    DoAttack(self, targetPawn, engine)
 
   def Draw(self, z_dist, engine):
     engine.draw_sprite(c_float(self.x_position), c_float(self.y_position), c_float(z_dist), self.img)
