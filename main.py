@@ -31,10 +31,12 @@ SPRITE_GAME_OVER = 9
 if __name__ == "__main__":
 
   #Initialise Renderer
-  engine = cdll.LoadLibrary('./target/release/libggj19.so')
+  #engine = cdll.LoadLibrary('./target/release/libggj19.dll')
+  engine = cdll.LoadLibrary('./target/x86_64-pc-windows-gnu/release/ggj19.dll')
+  
   engine.init_engine()
 
-  MapGen(engine, './assets/biggermap.bmp')
+  #MapGen(engine, './assets/Map.bmp')
 
   jb = Jukebox(engine)
 
@@ -42,8 +44,8 @@ if __name__ == "__main__":
 
   player_one = Player(
                 health=10,
-                x_position=18,
-                y_position=18,
+                x_position=4.5,
+                y_position=4.5,
                 x_orientation=1.0,
                 y_orientation=0.0,
                 weapon=Gun(),
@@ -54,15 +56,6 @@ if __name__ == "__main__":
   mine_drops = []
   health_drops = []
   mines = []
-
-  spawn_points = [
-      (6, 45),
-      (37, 26),
-      (49, 5),
-      (63, 53),
-      (28, 100),
-      (7, 64)
-  ]
 
   dt = 0
   bob = 0.0
@@ -84,17 +77,13 @@ if __name__ == "__main__":
         health_drops.append((x + 0.5, y + 0.5))
 
     while len(enemies) < 20:
-        spawn_idx = random.randint(0, len(spawn_points) - 1)
-        x = spawn_points[spawn_idx][0]
-        y = spawn_points[spawn_idx][1]
-        #while engine.get_cell_kind(int(x), int(y)) != 0:
-        #    x = random.randint(0, 32)
-        #    y = random.randint(0, 32)
-        #if random.randint(0, 2) == 0:
-        #    x = random.randint(0, 2) * 31
-        #else:
-        #    y = random.randint(0, 2) * 31
-        enemies.append(enemy_factory(engine, x + 0.5, y + 0.5))
+        x = random.randint(0, 32)
+        y = random.randint(0, 32)
+        if random.randint(0, 2) == 0:
+            x = random.randint(0, 2) * 31
+        else:
+            y = random.randint(0, 2) * 31
+        enemies.append(enemy_factory(engine, x, y))
 
     #Moves and rotates player as necessary
     player_one.HandleKeys(dt, engine, enemies)
