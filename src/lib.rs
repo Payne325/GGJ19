@@ -239,6 +239,20 @@ impl Engine {
         }
     }
 
+    fn close(&mut self) {
+        self.clock = None;
+        self.win = None;
+        self.music = None;
+        self.world = None;
+        self.color = None;
+        self.depth = None;
+        self.keys = None;
+        self.pressed = None;
+        self.tex = None;
+        self.sound_dev = None;
+        self.sounds = None;
+    }
+
     fn init(&mut self) {
         self.clock = Some(Clock::new());
 
@@ -278,6 +292,7 @@ impl Engine {
                 image::open("assets/gun-zoom-fire.png").unwrap().to_rgba(),
                 image::open("assets/mine_item.png").unwrap().to_rgba(),
                 image::open("assets/health.png").unwrap().to_rgba(),
+                image::open("assets/gameover.png").unwrap().to_rgba(),
             ],
         });
 
@@ -295,7 +310,7 @@ impl Engine {
                 String::from("assets/Footstep_4.wav"), //7
                 String::from("assets/home_atmos_1.wav"), //8
                 String::from("assets/Gunshot_flesh_1.wav"), //9
-                String::from("assets/Gunshot_wall_1.wav"), //10  
+                String::from("assets/Gunshot_wall_1.wav"), //10
             ],
         });
     }
@@ -314,7 +329,8 @@ impl Engine {
         let mut tex = self.tex.as_mut().unwrap();
 
         // Render
-        color.clear(SKY_BLUE);
+        const RED_BROWN: u32 = 0xFF804000;
+        //color.clear(RED_BROWN);
         depth.clear(10000.0);
 
         let floor_dists = (WIN_SZ.y / 2..WIN_SZ.y)
@@ -325,10 +341,12 @@ impl Engine {
             let col_dir = world.player
                 .get_look_dir((x as f32 - WIN_SZ.x as f32 / 2.0) * FOV);
 
-            for y in WIN_SZ.y / 2..WIN_SZ.y {
-                let dist = floor_dists[y - WIN_SZ.y / 2];// + (y as f32).sin().sin().sin().sin().sin().sin().sin().sin().sin().sin().sin().sin().sin() * 0.0001;
-                color.set(Vec2::new(x, y), tex.floor_at(world.player.pos + col_dir * dist));
-                depth.set(Vec2::new(x, y), dist);
+            for y in 0..WIN_SZ.y / 2 {
+                let dist = floor_dists[y];// + (y as f32).sin().sin().sin().sin().sin().sin().sin().sin().sin().sin().sin().sin().sin() * 0.0001;
+                color.set(Vec2::new(x, y + WIN_SZ.y / 2), tex.floor_at(world.player.pos + col_dir * dist));
+                color.set(Vec2::new(x, WIN_SZ.y / 2 - y), tex.floor_at(world.player.pos + col_dir * dist));
+                depth.set(Vec2::new(x, y + WIN_SZ.y / 2), dist);
+                depth.set(Vec2::new(x, WIN_SZ.y / 2 - y), dist);
             }
 
             let mut lim_min = WIN_SZ.y;
@@ -465,6 +483,12 @@ pub extern "C" fn init_engine() {
     let mut engine = unsafe { &mut ENGINE };
     *engine = Engine::new();
     engine.init();
+}
+
+#[no_mangle]
+pub extern "C" fn close_engine() {
+    let mut engine = unsafe { &mut ENGINE };
+    engine.close();
 }
 
 #[no_mangle]
