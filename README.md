@@ -16,14 +16,15 @@ Texture and Level Designer - Tom Lewis
 Sound and Music Designer - Kristian Amdersen
 
 
-Running on Windows:
+Running on Windows(x64 only):
 
 Prerequisites - Python3
 
-Instructions: From root, run Main.py with Python
+Instructions: From root > release, run Main.py with Python
+
 
 Running on Linux/Compiling from source:
 
 Prerequisites - Rust, Python3, OpenGL, Alsa development library
 
-Instructions: From the Project root and run `cargo build --release`. Then run `python3 main.py`.`.
+Instructions: From the Project root and run `cargo build --release`. Then run `python3 main.py`.
