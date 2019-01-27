@@ -28,12 +28,17 @@ SPRITE_MINE_ITEM = 7
 SPRITE_HEALTH = 8
 SPRITE_GAME_OVER = 9
 
+import os
+
 if __name__ == "__main__":
 
   difficulty = 1.0
   #Initialise Renderer
-  engine = cdll.LoadLibrary('./target/release/libggj19.so')
-  #engine = cdll.LoadLibrary('./target/x86_64-pc-windows-gnu/release/ggj19.dll')
+  path = './target/release/libggj19.so'
+  print(os.name)
+  if os.name == "nt":
+	  path = './target/x86_64-pc-windows-gnu/release/ggj19.dll'
+  engine = cdll.LoadLibrary(path)
 
   engine.init_engine()
 

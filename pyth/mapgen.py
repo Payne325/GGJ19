@@ -16,16 +16,16 @@ class MapGen:
 			for x in range(128):
 				pixelRGB = self.image_rgb.getpixel((x,y))
 				if pixelRGB != (255,255,255):
-					if x > 64:
-						engine.set_cell(x,y,c_float(1.0),1)
-					elif x > 39 and y < 40:
-						engine.set_cell(x,y,c_float(1.0),3)
-					elif y > 59 and y < 40:
-						engine.set_cell(x,y,c_float(1.0),2)
-					if y > 59:
-						engine.set_cell(x,y,c_float(1.0),4)
+					if x > 39:
+						if x > 39 and y < 40:
+							engine.set_cell(x,y,c_float(1.0),3)
+						else:
+							engine.set_cell(x,y,c_float(1.0),2)
 					else:
-						engine.set_cell(x,y,c_float(1.0),5)
+						if y > 59:
+							engine.set_cell(x,y,c_float(1.0),2)
+						else:
+							engine.set_cell(x,y,c_float(1.0),5)
 				else:
 					engine.set_cell(x,y,c_float(0.0),0)
 
