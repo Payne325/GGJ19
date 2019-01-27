@@ -202,6 +202,7 @@ const WIN_SZ: Vec2<usize> = Vec2 { x: 800, y: 600 };
 struct Engine {
     clock: Option<Clock>,
     win: Option<Window>,
+    music: Option<rodio::Sink>,
     world: Option<World>,
     color: Option<Buffer2d<u32>>,
     depth: Option<Buffer2d<f32>>,
@@ -225,6 +226,7 @@ impl Engine {
         Self {
             clock: None,
             win: None,
+            music: None,
             world: None,
             color: None,
             depth: None,
@@ -520,6 +522,22 @@ pub extern "C" fn play_sound(n: i32) {
     let mut sounds = engine.sounds.as_mut().unwrap();
 
     rodio::play_once(sound_dev, std::io::BufReader::new(std::fs::File::open(&sounds.sounds[n as usize]).unwrap())).unwrap().detach();
+}
+
+#[no_mangle]
+pub extern "C" fn play_music(n: i32) {
+    let mut engine = unsafe { &mut ENGINE };
+    let mut sound_dev = engine.sound_dev.as_mut().unwrap();
+    let mut sounds = engine.sounds.as_mut().unwrap();
+
+    engine.music = Some(rodio::play_once(sound_dev, std::io::BufReader::new(std::fs::File::open(&sounds.sounds[n as usize]).unwrap())).unwrap());
+}
+
+#[no_mangle]
+pub extern "C" fn music_is_playing() -> i32 {
+    let mut engine = unsafe { &mut ENGINE };
+
+    if engine.music.as_ref().map(|snd| !snd.empty()).unwrap_or(false) { 1 } else { 0 }
 }
 
 #[no_mangle]
