@@ -6,9 +6,13 @@ HOME INVASION is a homage to DOOM era 2.5D first person shooters. You play as a 
 HOME INVASION has been fully coded from the ground up. The graphics and assets engine is written in RUST, and the core game logic is written in Python3. Communication is possible via a external C interface defined by the RUST library.
 
 Game Engine Programmer - Joshua Barretto
+
 Software Architect - Alexander Payne
+
 Game Logic Programmers - Joshua Barretto, Alexander Payne
+
 Texture and Level Designer - Tom Lewis
+
 Sound and Music Designer - Kristian Amdersen
 
 
