@@ -281,9 +281,17 @@ impl Engine {
 
         self.sounds = Some(Sounds {
             sounds: vec![
-                String::from("assets/gunshot.wav"),
-                String::from("assets/mine_pickup.wav"),
-                String::from("assets/attack.wav"),
+                String::from("assets/gunshot.wav"), //0
+                String::from("assets/mine_pickup.wav"), //1
+                String::from("assets/attack.wav"), //2
+                String::from("assets/Home_battle1.wav"), //3
+                String::from("assets/Footstep_1.wav"), //4
+                String::from("assets/Footstep_2.wav"), //5
+                String::from("assets/Footstep_3.wav"), //6
+                String::from("assets/Footstep_4.wav"), //7
+                String::from("assets/home_atmos_1.wav"), //8
+                String::from("assets/Gunshot_flesh_1.wav"), //9
+                String::from("assets/Gunshot_wall_1.wav"), //10  
             ],
         });
     }

@@ -147,5 +147,7 @@ class Pawn:
 
     if closest != None:
         print("HIT!")
-        engine.play_sound(2) # Attack sound
+        engine.play_sound(9) # Attack sound
         closest.TakeImmediateDamage(self.weapon.GetDamage())
+    else:
+      engine.play_sound(2)
