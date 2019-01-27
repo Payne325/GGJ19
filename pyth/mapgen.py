@@ -12,8 +12,8 @@ class MapGen:
 			print('Map failed to load!')
 			return
 
-		for y in range(32):
-			for x in range(32):
+		for y in range(128):
+			for x in range(128):
 				pixelRGB = self.image_rgb.getpixel((x,y))
 				if pixelRGB != (255,255,255):
 					engine.set_cell(x,y,c_float(1.0),1)
