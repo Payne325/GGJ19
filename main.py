@@ -32,14 +32,14 @@ if __name__ == "__main__":
   engine = cdll.LoadLibrary('./target/release/libggj19.so')
   engine.init_engine()
 
-  MapGen(engine, './assets/Map.bmp')
+  MapGen(engine, './assets/biggermap.bmp')
 
   #Initialise Game Entities
 
   player_one = Player(
                 health=10,
-                x_position=4.5,
-                y_position=4.5,
+                x_position=18,
+                y_position=18,
                 x_orientation=1.0,
                 y_orientation=0.0,
                 weapon=Fists(),
