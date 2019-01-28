@@ -1,13 +1,17 @@
+'''
 from pyth.player import Player
 from pyth.enemy import Enemy
 from pyth.weapon import *
+'''
 from ctypes import cdll, c_float
 from pyth.mapgen import MapGen
 from pyth.jukebox import Jukebox
+from pyth.factory import Factory
 from pyth.globals import *
 import math, random
 import os
 
+'''
 def enemy_factory(engine, x, y, mult):
     return Enemy(
         health=math.trunc(3*mult),
@@ -18,6 +22,7 @@ def enemy_factory(engine, x, y, mult):
         weapon=Fists(),
         speed=0.014*mult, #speed=random.randint(1, 4) * 0.01,
         engine=engine)
+'''
 
 if __name__ == "__main__":
 
@@ -37,16 +42,7 @@ if __name__ == "__main__":
 
   #Initialise Game Entities
 
-  player_one = Player(
-                health=10,
-                x_position=18.5,
-                y_position=18.5,
-                x_orientation=1.0,
-                y_orientation=0.0,
-                weapon=Gun(),
-                resource=50,
-				        speed=0.007,
-                engine=engine)
+  player_one = Factory.CreatePlayer(engine)
 
   enemies = []
   mine_drops = []
@@ -99,7 +95,7 @@ if __name__ == "__main__":
         #    x = random.randint(0, 2) * 31
         #else:
         #    y = random.randint(0, 2) * 31
-        enemies.append(enemy_factory(engine, x + 0.5, y + 0.5, difficulty))
+        enemies.append(Factory.CreateEnemy(engine, x + 0.5, y + 0.5, difficulty))
         difficulty += 0.1
 
     #Moves and rotates player as necessary
