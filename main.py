@@ -1,8 +1,3 @@
-'''
-from pyth.player import Player
-from pyth.enemy import Enemy
-from pyth.weapon import *
-'''
 from ctypes import cdll, c_float
 from pyth.mapgen import MapGen
 from pyth.jukebox import Jukebox
@@ -10,19 +5,6 @@ from pyth.factory import Factory
 from pyth.globals import *
 import math, random
 import os
-
-'''
-def enemy_factory(engine, x, y, mult):
-    return Enemy(
-        health=math.trunc(3*mult),
-        x_position=x,
-        y_position=y,
-        x_orientation=-1,
-        y_orientation=-1,
-        weapon=Fists(),
-        speed=0.014*mult, #speed=random.randint(1, 4) * 0.01,
-        engine=engine)
-'''
 
 if __name__ == "__main__":
 
