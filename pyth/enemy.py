@@ -9,7 +9,7 @@ import random
 
 class Enemy(Pawn, Drawable):
   def __init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed, engine):
-    Pawn.__init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed)
+    Pawn.__init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed, engine)
     Drawable.__init__(self)
     #self.state_machine = State_Machine(sightRange)
     self.pathfinder = Pathfinder(engine)
@@ -19,12 +19,12 @@ class Enemy(Pawn, Drawable):
     self.prev_y = -1
     self.tgt_velocity = (0, 0)
 
-    def TakeImmediateDamage(self, damage, engine):
-      Pawn.TakeImmediateDamage(self, damage, engine)
-      engine.play_sound(14)
+    def TakeImmediateDamage(self, damage):
+      Pawn.TakeImmediateDamage(self, damage)
+      self.engine.play_sound(14)
 
-  def Update(self, targetPawn, engine):
-    def DoAttack(this, targetPawn, engine):
+  def Update(self, targetPawn):
+    def DoAttack(this, targetPawn):
       playerPos = [targetPawn.GetXPosition(), targetPawn.GetYPosition()]
       enemyPos = [this.GetXPosition(), this.GetYPosition()]
 
@@ -36,7 +36,7 @@ class Enemy(Pawn, Drawable):
         this.x_orientation = (playerPos[0] - enemyPos[0]) / distance
         this.y_orientation = (playerPos[1] - enemyPos[1]) / distance
         #print("\nOrientation: " + self.x_orientation + " " + self.y_orientation)
-        this.Attack(engine, [targetPawn])
+        this.Attack([targetPawn])
 
     if (self.prev_x != int(self.x_position) or self.prev_y != int(self.y_position)) or random.randint(0, 100) == 0:
       target_x = targetPawn.GetXPosition()
@@ -58,7 +58,7 @@ class Enemy(Pawn, Drawable):
     self.x_velocity += self.tgt_velocity[0] * self.speed
     self.y_velocity += self.tgt_velocity[1] * self.speed
 
-    DoAttack(self, targetPawn, engine)
+    DoAttack(self, targetPawn)
 
   def Draw(self, z_dist, engine):
-    engine.draw_sprite(c_float(self.x_position), c_float(self.y_position), c_float(z_dist), self.img)
+    self.engine.draw_sprite(c_float(self.x_position), c_float(self.y_position), c_float(z_dist), self.img)

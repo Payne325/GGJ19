@@ -56,7 +56,8 @@ if __name__ == "__main__":
                 y_orientation=0.0,
                 weapon=Gun(),
                 resource=50,
-				        speed=0.007)
+				        speed=0.007,
+                engine=engine)
 
   enemies = []
   mine_drops = []
@@ -113,8 +114,8 @@ if __name__ == "__main__":
         difficulty += 0.1
 
     #Moves and rotates player as necessary
-    player_one.HandleKeys(dt, engine, enemies)
-    player_one.Tick(engine, dt)
+    player_one.HandleKeys(dt, enemies)
+    player_one.Tick(dt)
 
     #updates the camera location and orientation
     engine.put_camera(c_float(player_one.GetXPosition()), c_float(player_one.GetYPosition()), c_float(player_one.GetOrientationAngle()))
@@ -122,8 +123,8 @@ if __name__ == "__main__":
     #Perform enemy update
     deadEnemies = []
     for enemy in enemies:
-      enemy.Update(player_one, engine)
-      enemy.Tick(engine, dt)
+      enemy.Update(player_one)
+      enemy.Tick(dt)
       if enemy.health <= 0:
           enemies.remove(enemy)
           engine.play_sound(15)

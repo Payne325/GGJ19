@@ -2,7 +2,7 @@ import math
 from ctypes import cdll, c_float
 
 class Pawn:
-  def __init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed):
+  def __init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed, engine):
     self.health = health
     self.x_position = x_position
     self.y_position = y_position
@@ -13,15 +13,16 @@ class Pawn:
     self.speed = speed
     self.x_velocity = 0.0
     self.y_velocity = 0.0
+    self.engine = engine
 
-  def Tick(self, engine, dt):
+  def Tick(self, dt):
     vel_len = math.sqrt(self.x_velocity ** 2.0 + self.y_velocity ** 2.0)
     for i in range(int(dt ** 0.4) + 2):
         self.x_velocity *= 0.85
         self.y_velocity *= 0.85
     self.attack_cooldown += dt / 15
 
-    def would_collide(this, engine, x, y):
+    def would_collide(this, x, y):
         dirs = [
             (-0.25, -0.25),
             (-0.25,  0.25),
@@ -29,22 +30,21 @@ class Pawn:
             ( 0.25,  0.25)
         ]
         for d in dirs:
-            if engine.get_cell_kind(int(this.x_position + x + d[0]), int(this.y_position + y + d[1])) != 0:
+            if self.engine.get_cell_kind(int(this.x_position + x + d[0]), int(this.y_position + y + d[1])) != 0:
                 return True
         return False
 
-    if would_collide(self, engine, self.x_velocity, self.y_velocity):
+    if would_collide(self, self.x_velocity, self.y_velocity):
         dist = 0.0
         while dist < 1.0:
-            if not would_collide(self, engine, self.x_velocity * 0.05, 0.0):
+            if not would_collide(self, self.x_velocity * 0.05, 0.0):
                 self.x_position += self.x_velocity * 0.05
-            if not would_collide(self, engine, 0.0, self.y_velocity * 0.05):
+            if not would_collide(self, 0.0, self.y_velocity * 0.05):
                 self.y_position += self.y_velocity * 0.05
             dist += 0.05
     else:
         self.x_position += self.x_velocity
         self.y_position += self.y_velocity
-
 
 
   def GetXPosition(self):
@@ -60,7 +60,7 @@ class Pawn:
     self.x_position = x
     self.y_position = y
 
-  def TakeImmediateDamage(self, damage, engine):
+  def TakeImmediateDamage(self, damage):
     self.health = self.health - damage
 
   def Intersects(self, ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction):
@@ -84,7 +84,7 @@ class Pawn:
 
     return cross == 0
 
-  def hit_other(self, engine, other):
+  def hit_other(self, other):
     def norm(x, y):
         leng = math.sqrt(x * x + y * y)
         return (
@@ -106,7 +106,7 @@ class Pawn:
         (self.x_orientation, self.y_orientation)
     )
 
-    ray_dist = float(engine.cast_ray(
+    ray_dist = float(self.engine.cast_ray(
         c_float(self.x_position),
         c_float(self.y_position),
         c_float(to_other[0] / to_other_leng),
@@ -121,7 +121,7 @@ class Pawn:
     else:
         return (False, ray_dist)
 
-  def Attack(self, engine, pawns):
+  def Attack(self, pawns):
     if self.attack_cooldown < 15:
         return
     else:
@@ -139,7 +139,7 @@ class Pawn:
     closest_dist = 1000.0
     for pawn in pawns:
       #hit = pawn.Intersects(ray_length, ray_x_point, ray_y_point, ray_x_direction, ray_y_direction)
-      hit = self.hit_other(engine, pawn)
+      hit = self.hit_other(pawn)
       if hit[0] == True and hit[1] <= self.weapon.GetHitDistance():
         #print("HIT!")
         if hit[1] < closest_dist:
@@ -148,5 +148,5 @@ class Pawn:
 
     if closest != None:
         #print("HIT!")
-        engine.play_sound(9) # Attack sound
-        closest.TakeImmediateDamage(self.weapon.GetDamage(), engine)
+        self.engine.play_sound(9) # Attack sound
+        closest.TakeImmediateDamage(self.weapon.GetDamage())
