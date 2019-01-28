@@ -4,7 +4,9 @@ from pyth.weapon import *
 from ctypes import cdll, c_float
 from pyth.mapgen import MapGen
 from pyth.jukebox import Jukebox
+from pyth.globals import *
 import math, random
+import os
 
 def enemy_factory(engine, x, y, mult):
     return Enemy(
@@ -16,19 +18,6 @@ def enemy_factory(engine, x, y, mult):
         weapon=Fists(),
         speed=0.014*mult, #speed=random.randint(1, 4) * 0.01,
         engine=engine)
-
-SPRITE_ZOMBIE = 0
-SPRITE_MINE = 1
-SPRITE_GUN = 2
-SPRITE_GUN_FIRE = 3
-SPRITE_HEART = 4
-SPRITE_GUN_ZOOM = 5
-SPRITE_GUN_ZOOM_FIRE = 6
-SPRITE_MINE_ITEM = 7
-SPRITE_HEALTH = 8
-SPRITE_GAME_OVER = 9
-
-import os
 
 if __name__ == "__main__":
 

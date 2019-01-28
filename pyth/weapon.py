@@ -17,12 +17,13 @@ class Weapon():
 
 class Gun(Weapon):
   def __init__(self):
-    Weapon.__init__(self, 5, 50, FISTS_SPRITE_INDEX)
+    Weapon.__init__(self, 5, 50, -1)#FISTS_SPRITE_INDEX) #Payne325: Need to implement draws for weapons.
 
 class Fists(Weapon):
   def __init__(self):
-    Weapon.__init__(self, 1, 1, FISTS_SPRITE_INDEX)
+    Weapon.__init__(self, 1, 1, -1) #FISTS_SPRITE_INDEX)
 
+'''
 class CricketBat(Weapon):
   def __init__(self):
     Weapon.__init__(self, 2, 2, CRICKET_BAT_SPRITE_INDEX)
@@ -34,3 +35,4 @@ class KnuckleDuster(Weapon):
 class Sword(Weapon):
   def __init__(self):
     Weapon.__init__(self, 5, 2, SWORD_SPRITE_INDEX)
+'''

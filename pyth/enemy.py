@@ -13,7 +13,7 @@ class Enemy(Pawn, Drawable):
     Drawable.__init__(self, engine)
     #self.state_machine = State_Machine(sightRange)
     self.pathfinder = Pathfinder(engine)
-    self.img = ENEMY_SPRITE_INDEX
+    self.img = SPRITE_ZOMBIE
 
     self.prev_x = -1
     self.prev_y = -1
