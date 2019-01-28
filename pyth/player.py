@@ -6,7 +6,7 @@ import math
 class Player(Pawn, Drawable):
   def __init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, resource, speed, engine):
     Pawn.__init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed, engine)
-    Drawable.__init__(self)
+    Drawable.__init__(self, engine)
     self.resource = resource
     self.rotOff = 0.003
     self.mine_count = 0
@@ -97,6 +97,6 @@ class Player(Pawn, Drawable):
     self.x_orientation = math.cos(ori)
     self.y_orientation = -math.sin(ori)
 
-  def Draw(self, z_dist, engine):
+  def Draw(self, z_dist):
     pass
     #engine.draw_sprite(self.x_position, self.y_position, 0, self.weapon.GetImg())

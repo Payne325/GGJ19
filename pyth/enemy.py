@@ -10,7 +10,7 @@ import random
 class Enemy(Pawn, Drawable):
   def __init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed, engine):
     Pawn.__init__(self, health, x_position, y_position, x_orientation, y_orientation, weapon, speed, engine)
-    Drawable.__init__(self)
+    Drawable.__init__(self, engine)
     #self.state_machine = State_Machine(sightRange)
     self.pathfinder = Pathfinder(engine)
     self.img = ENEMY_SPRITE_INDEX
@@ -60,5 +60,5 @@ class Enemy(Pawn, Drawable):
 
     DoAttack(self, targetPawn)
 
-  def Draw(self, z_dist, engine):
+  def Draw(self, z_dist):
     self.engine.draw_sprite(c_float(self.x_position), c_float(self.y_position), c_float(z_dist), self.img)

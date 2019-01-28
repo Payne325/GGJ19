@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
     #draw
     engine.draw_world()
-    player_one.Draw(1, engine)
+    player_one.Draw(1)
 
     jb.PlayMusic()
 
@@ -172,7 +172,7 @@ if __name__ == "__main__":
                 ((playerPos[0] - enemyPos[0]) * (playerPos[0] - enemyPos[0])) +
                 ((playerPos[1] - enemyPos[1]) * (playerPos[1] - enemyPos[1])))
 
-      enemy.Draw(zdist, engine)
+      enemy.Draw(zdist)
 
     if abs(player_one.x_velocity) > 0.05 or abs(player_one.y_velocity) > 0.05:
         bob += 0.3
