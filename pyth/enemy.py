@@ -3,7 +3,6 @@ from pyth.state_machine import State_Machine
 from pyth.pathfinder import Pathfinder
 from pyth.drawable import Drawable
 from pyth.globals import *
-from ctypes import cdll, c_float
 import math
 import random
 
@@ -59,9 +58,3 @@ class Enemy(Pawn, Drawable):
     self.y_velocity += self.tgt_velocity[1] * self.speed
 
     DoAttack(self, targetPawn)
-
-  def Draw(self, player_one):
-    rx = player_one.x_position - self.x_position
-    ry = player_one.y_position - self.y_position
-    dist = math.sqrt(rx * rx + ry * ry)
-    self.engine.draw_sprite(c_float(self.x_position), c_float(self.y_position), c_float(dist), self.img)

@@ -1,6 +1,7 @@
 from pyth.pawn import Pawn
 from pyth.drawable import Drawable
-from ctypes import cdll, c_float
+from pyth.globals import *
+from ctypes import c_float
 import math
 
 class Player(Pawn, Drawable):
@@ -12,6 +13,7 @@ class Player(Pawn, Drawable):
     self.mine_count = 0
     self.moveCounter = 0
     self.sfCooldown = 15
+    self.bob = 0
 
   def Tick(self, dt):
     self.sfCooldown += 1
@@ -98,5 +100,21 @@ class Player(Pawn, Drawable):
     self.y_orientation = -math.sin(ori)
 
   def Draw(self, player):
-    pass    
-    #engine.draw_sprite(self.x_position, self.y_position, 0, self.weapon.GetImg())
+    if abs(self.x_velocity) > 0.05 or abs(self.y_velocity) > 0.05:
+        self.bob += 0.3
+    if self.engine.get_key(7):
+        if self.attack_cooldown < 5:
+            self.engine.draw_decal(400 - 128, 600 - 512, SPRITE_GUN_ZOOM_FIRE)
+        else:
+            self.engine.draw_decal(400 - 128, 600 - 512, SPRITE_GUN_ZOOM)
+    else:
+        if self.attack_cooldown < 5:
+            self.engine.draw_decal(400 - 128, 600 - 256 + int((math.cos(self.bob) + 1.0) * 10.0), SPRITE_GUN_FIRE)
+        else:
+            self.engine.draw_decal(400 - 128, 600 - 256 + int((math.cos(self.bob) + 1.0) * 10.0), SPRITE_GUN)
+
+    for i in range(self.health):
+        self.engine.draw_decal(16 + 32 * i, 16, SPRITE_HEART)
+
+    for i in range(self.mine_count):
+        self.engine.draw_decal(16 + 16 * i, 64, SPRITE_MINE_ITEM)

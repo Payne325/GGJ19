@@ -85,7 +85,6 @@ if __name__ == "__main__":
 
     #draw
     engine.draw_world()
-    player_one.Draw(player_one)
 
     jb.PlayMusic()
 
@@ -119,24 +118,7 @@ if __name__ == "__main__":
     for enemy in enemies:
      enemy.Draw(player_one)
 
-    if abs(player_one.x_velocity) > 0.05 or abs(player_one.y_velocity) > 0.05:
-        bob += 0.3
-    if engine.get_key(7):
-        if player_one.attack_cooldown < 5:
-            engine.draw_decal(400 - 128, 600 - 512, SPRITE_GUN_ZOOM_FIRE)
-        else:
-            engine.draw_decal(400 - 128, 600 - 512, SPRITE_GUN_ZOOM)
-    else:
-        if player_one.attack_cooldown < 5:
-            engine.draw_decal(400 - 128, 600 - 256 + int((math.cos(bob) + 1.0) * 10.0), SPRITE_GUN_FIRE)
-        else:
-            engine.draw_decal(400 - 128, 600 - 256 + int((math.cos(bob) + 1.0) * 10.0), SPRITE_GUN)
-
-    for i in range(player_one.health):
-        engine.draw_decal(16 + 32 * i, 16, SPRITE_HEART)
-
-    for i in range(player_one.mine_count):
-        engine.draw_decal(16 + 16 * i, 64, SPRITE_MINE_ITEM)
+    player_one.Draw(player_one)
 
     dt = engine.update_window()
 
