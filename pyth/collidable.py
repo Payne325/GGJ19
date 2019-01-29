@@ -1,4 +1,5 @@
-from pawn import Pawn
+from pyth.pawn import Pawn
+import math
 
 class Collidable:
   def __init__(self, x_position, y_position, proximity_threshold):
@@ -6,15 +7,17 @@ class Collidable:
     self.y_position = y_position
     self.proximity_threshold = proximity_threshold
 
-  def HasCollidedWith(self, pawn):
-    x_range = abs(pawn.GetXPosition() - self.x_position)
-    y_range = abs(pawn.GetYPosition() - self.y_position)
-    
-    if(x_range <= self.proximity_threshold):
-      return True
+  def PerformCollisionAction(self, pawn):
+    print("This is the 'Collidable' abstract class you levitating tea spoon!")
+    sys.exit()
 
-    elif(y_range <= self.proximity_threshold):
-      return True
+  def HasCollidedWith(self, pawn):
+    rx = abs(pawn.GetXPosition() - self.x_position)
+    ry = abs(pawn.GetYPosition() - self.y_position)
+
+    dist = math.sqrt(rx * rx + ry * ry)
     
+    if(dist <= self.proximity_threshold):
+      return True    
     else:
       return False

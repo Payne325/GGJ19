@@ -27,7 +27,6 @@ if __name__ == "__main__":
   player_one = Factory.CreatePlayer(engine)
 
   enemies = []
-  mine_drops = []
   health_drops = []
   mines = []
 
@@ -49,13 +48,8 @@ if __name__ == "__main__":
   dt = 0
   bob = 0.0
   while engine.window_is_open():
-    while len(mine_drops) < 10:
-        x = random.randint(0, 128)
-        y = random.randint(0, 128)
-        while engine.get_cell_kind(int(x), int(y)) != 0:
-            x = random.randint(0, 128)
-            y = random.randint(0, 128)
-        mine_drops.append((x + 0.5, y + 0.5))
+    while len(mines) < 10:
+        mines.append(Factory.CreateMine(engine))
 
     while len(health_drops) < 10:
         x = random.randint(0, 128)
@@ -102,15 +96,16 @@ if __name__ == "__main__":
 
     jb.PlayMusic()
 
-    for mine_drop in mine_drops:
-        rx = player_one.GetXPosition() - mine_drop[0]
-        ry = player_one.GetYPosition() - mine_drop[1]
+    for mine in mines:
+        rx = player_one.GetXPosition() - mine.x_position
+        ry = player_one.GetYPosition() - mine.y_position
         dist = math.sqrt(rx * rx + ry * ry)
-        engine.draw_sprite(c_float(mine_drop[0]), c_float(mine_drop[1]), c_float(dist), SPRITE_MINE)
+        mine.Draw(dist)
 
-        if dist < 0.7:
-            mine_drops.remove(mine_drop)
-            engine.play_sound(1) # Mine pickup
+        #collideable
+        if mine.HasCollidedWith(player_one):
+            mines.remove(mine)
+            mine.PerformCollisionAction(player_one)
             player_one.mine_count += 1
 
     for health_drop in health_drops:
