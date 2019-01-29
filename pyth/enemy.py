@@ -60,5 +60,8 @@ class Enemy(Pawn, Drawable):
 
     DoAttack(self, targetPawn)
 
-  def Draw(self, z_dist):
-    self.engine.draw_sprite(c_float(self.x_position), c_float(self.y_position), c_float(z_dist), self.img)
+  def Draw(self, player_one):
+    rx = player_one.x_position - self.x_position
+    ry = player_one.y_position - self.y_position
+    dist = math.sqrt(rx * rx + ry * ry)
+    self.engine.draw_sprite(c_float(self.x_position), c_float(self.y_position), c_float(dist), self.img)

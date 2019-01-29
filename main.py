@@ -64,13 +64,6 @@ if __name__ == "__main__":
         spawn_idx = random.randint(0, len(spawn_points) - 1)
         x = spawn_points[spawn_idx][0]
         y = spawn_points[spawn_idx][1]
-        #while engine.get_cell_kind(int(x), int(y)) != 0:
-        #    x = random.randint(0, 32)
-        #    y = random.randint(0, 32)
-        #if random.randint(0, 2) == 0:
-        #    x = random.randint(0, 2) * 31
-        #else:
-        #    y = random.randint(0, 2) * 31
         enemies.append(Factory.CreateEnemy(engine, x + 0.5, y + 0.5, difficulty))
         difficulty += 0.1
 
@@ -92,21 +85,18 @@ if __name__ == "__main__":
 
     #draw
     engine.draw_world()
-    player_one.Draw(1)
+    player_one.Draw(player_one)
 
     jb.PlayMusic()
 
     for mine in mines:
-        rx = player_one.GetXPosition() - mine.x_position
-        ry = player_one.GetYPosition() - mine.y_position
-        dist = math.sqrt(rx * rx + ry * ry)
-        mine.Draw(dist)
+      mine.Draw(player_one)
 
-        #collideable
-        if mine.HasCollidedWith(player_one):
-            mines.remove(mine)
-            mine.PerformCollisionAction(player_one)
-            player_one.mine_count += 1
+      #collideable
+      if mine.HasCollidedWith(player_one):
+        mines.remove(mine)
+        mine.PerformCollisionAction(player_one)
+        player_one.mine_count += 1
 
     for health_drop in health_drops:
         rx = player_one.GetXPosition() - health_drop[0]
@@ -127,14 +117,7 @@ if __name__ == "__main__":
       break
 
     for enemy in enemies:
-      playerPos = [player_one.GetXPosition(), player_one.GetYPosition()]
-      enemyPos = [enemy.GetXPosition(), enemy.GetYPosition()]
-
-      zdist = math.sqrt(
-                ((playerPos[0] - enemyPos[0]) * (playerPos[0] - enemyPos[0])) +
-                ((playerPos[1] - enemyPos[1]) * (playerPos[1] - enemyPos[1])))
-
-      enemy.Draw(zdist)
+     enemy.Draw(player_one)
 
     if abs(player_one.x_velocity) > 0.05 or abs(player_one.y_velocity) > 0.05:
         bob += 0.3

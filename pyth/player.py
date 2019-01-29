@@ -97,6 +97,6 @@ class Player(Pawn, Drawable):
     self.x_orientation = math.cos(ori)
     self.y_orientation = -math.sin(ori)
 
-  def Draw(self, z_dist):
-    pass
+  def Draw(self, player):
+    pass    
     #engine.draw_sprite(self.x_position, self.y_position, 0, self.weapon.GetImg())
