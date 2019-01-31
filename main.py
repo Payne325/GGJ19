@@ -52,13 +52,7 @@ if __name__ == "__main__":
         mines.append(Factory.CreateMine(engine))
 
     while len(health_drops) < 10:
-        x = random.randint(0, 128)
-        y = random.randint(0, 128)
-        while engine.get_cell_kind(int(x), int(y)) != 0:
-            x = random.randint(0, 128)
-            y = random.randint(0, 128)
-        health_drops.append((x + 0.5, y + 0.5))
-
+        health_drops.append(Factory.CreateHealthPack(engine))
 
     while len(enemies) < 20:
         spawn_idx = random.randint(0, len(spawn_points) - 1)
@@ -91,22 +85,16 @@ if __name__ == "__main__":
     for mine in mines:
       mine.Draw(player_one)
 
-      #collideable
       if mine.HasCollidedWith(player_one):
         mines.remove(mine)
         mine.PerformCollisionAction(player_one)
-        player_one.mine_count += 1
 
     for health_drop in health_drops:
-        rx = player_one.GetXPosition() - health_drop[0]
-        ry = player_one.GetYPosition() - health_drop[1]
-        dist = math.sqrt(rx * rx + ry * ry)
-        engine.draw_sprite(c_float(health_drop[0]), c_float(health_drop[1]), c_float(dist), SPRITE_HEALTH)
+        health_drop.Draw(player_one)
 
-        if dist < 0.7:
+        if health_drop.HasCollidedWith(player_one):
             health_drops.remove(health_drop)
-            engine.play_sound(1) # Health pickup
-            player_one.health = min(20, player_one.health + 1)
+            health_drop.PerformCollisionAction(player_one)
 
     if len(enemies) == 0:
       print("YOU PROTECTED YOUR HOME! YOU WIN!")

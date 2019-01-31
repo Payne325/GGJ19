@@ -10,7 +10,8 @@ class Mine(Collidable, Drawable):
     self.img = SPRITE_MINE
 
   def PerformCollisionAction(self, pawn):
-    self.engine.play_sound(1) # Mine pickup  
+    self.engine.play_sound(1) # Mine pickup
+    pawn.mine_count += 1
     
   #Payne325: For the time being, mines are just collected and do nothing.
   #I guess this class is actually, DeactivatedMine...

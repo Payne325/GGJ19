@@ -2,6 +2,7 @@ from pyth.player import Player
 from pyth.enemy import Enemy
 from pyth.weapon import *
 from pyth.mine import Mine
+from pyth.health_pack import HealthPack
 import math, random
 
 class Factory():
@@ -37,3 +38,15 @@ class Factory():
       y = random.randint(0, 128)
 
     return Mine(x + 0.5, y + 0.5, 0.7, engine)
+
+  def CreateHealthPack(engine):
+    x = random.randint(0, 128)
+    y = random.randint(0, 128)
+      
+    while engine.get_cell_kind(int(x), int(y)) != 0:
+      x = random.randint(0, 128)
+      y = random.randint(0, 128)
+
+    return HealthPack(x + 0.5, y + 0.5, 0.7, engine)
+
+    
