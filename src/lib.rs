@@ -310,13 +310,13 @@ impl Engine {
                 String::from("assets/Footstep_4.wav"), //7
                 String::from("assets/home_atmos_1.wav"), //8
                 String::from("assets/Gunshot_flesh_1.wav"), //9
-                String::from("assets/Gunshot_wall_1.wav"), //10  
-                String::from("assets/Zombie1.wav"), //11  
-                String::from("assets/Zombie2.wav"), //12  
-                String::from("assets/Zombie3.wav"), //13  
-                String::from("assets/Zombie4.wav"), //14  
-                String::from("assets/Zombie_death_1.wav"), //15  
-                String::from("assets/Zombie_death_2.wav"), //16 
+                String::from("assets/Gunshot_wall_1.wav"), //10
+                String::from("assets/Zombie1.wav"), //11
+                String::from("assets/Zombie2.wav"), //12
+                String::from("assets/Zombie3.wav"), //13
+                String::from("assets/Zombie4.wav"), //14
+                String::from("assets/Zombie_death_1.wav"), //15
+                String::from("assets/Zombie_death_2.wav"), //16
             ],
         });
     }
@@ -569,6 +569,7 @@ pub extern "C" fn play_music(n: i32) {
     let mut sounds = engine.sounds.as_mut().unwrap();
 
     engine.music = Some(rodio::play_once(sound_dev, std::io::BufReader::new(std::fs::File::open(&sounds.sounds[n as usize]).unwrap())).unwrap());
+    engine.music.as_mut().unwrap().set_volume(0.4);
 }
 
 #[no_mangle]
@@ -581,6 +582,13 @@ pub extern "C" fn music_is_playing() -> i32 {
 #[no_mangle]
 pub extern "C" fn draw_sprite(x: f32, y: f32, dist: f32, img: i32) {
     let mut engine = unsafe { &mut ENGINE };
+    engine.draw_sprite(Vec2::new(x, y), dist, img);
+}
+
+#[no_mangle]
+pub extern "C" fn draw_billboard(x: f32, y: f32, img: i32) {
+    let mut engine = unsafe { &mut ENGINE };
+    let dist = engine.world.as_mut().unwrap().player.pos.distance(Vec2::new(x, y));
     engine.draw_sprite(Vec2::new(x, y), dist, img);
 }
 
